@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:spend_wise/pages/add_transaction_page.dart';
 import 'package:spend_wise/dto/transaction.dart';
+import 'package:spend_wise/model/transaction_repository.dart';
 
 class TransactionsPage extends StatefulWidget {
   const TransactionsPage({super.key});
@@ -15,19 +16,19 @@ class _PaymentsPageState extends State<TransactionsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: StreamBuilder<List<Transaction>>(
-        stream: getTransactionsForCurrentMonth(),
-        builder:
-            (BuildContext context, AsyncSnapshot<List<Transaction>> snapshot) {
+      body: StreamBuilder<List<TransactionDto>>(
+        stream: getRecentTransactionsStream(), // Use the stream here
+        builder: (BuildContext context,
+            AsyncSnapshot<List<TransactionDto>> snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
+            return Center(child: CircularProgressIndicator()); // Loading state
           } else if (snapshot.hasError) {
             return Center(
                 child: Text('Error: ${snapshot.error}')); // Error state
           } else if (snapshot.hasData && snapshot.data!.isEmpty) {
             return Center(child: Text('No transactions found.'));
           } else if (snapshot.hasData) {
-            List<Transaction> transactions = snapshot.data!;
+            List<TransactionDto> transactions = snapshot.data!;
             List<Widget> recentTxns = [];
             transactions.forEach((tx) {
               recentTxns.add(transactionItem(

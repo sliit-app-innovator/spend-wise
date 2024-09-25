@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:spend_wise/dto/transaction.dart';
 import 'package:uuid/uuid.dart';
 import 'package:intl/intl.dart';
+import 'package:spend_wise/model/transaction_repository.dart';
 
 class AddTransactionPage extends StatefulWidget {
   const AddTransactionPage({super.key});
@@ -11,7 +12,7 @@ class AddTransactionPage extends StatefulWidget {
 }
 
 class _AddExpensesPage extends State<AddTransactionPage> {
-  final List<Transaction> _transactions = [];
+  final List<TransactionDto> _transactions = [];
   final _formKey = GlobalKey<FormState>();
 
   // Form fields
@@ -61,7 +62,7 @@ class _AddExpensesPage extends State<AddTransactionPage> {
 
       setState(() {
         String formattedDate = DateFormat('yyyy-MM-dd').format(DateTime.now());
-        Transaction txn = new Transaction(
+        TransactionDto txn = new TransactionDto(
             id: const Uuid().v4().toString(),
             userId: 'damith',
             type: _selectedType,

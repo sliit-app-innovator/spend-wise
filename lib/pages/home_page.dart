@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:spend_wise/pages/add_transaction_page.dart';
 import 'package:spend_wise/dto/transaction.dart';
+import 'package:spend_wise/pages/add_transaction_page.dart';
+import 'package:spend_wise/model/transaction_repository.dart';
 
 class HomePage extends StatefulWidget {
   //const HomePage({super.key});
@@ -16,10 +17,10 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     //   loadTransactions();
     return Scaffold(
-      body: StreamBuilder<List<Transaction>>(
-        stream: getMonthlyTransactionsStream(), // Use the stream here
-        builder:
-            (BuildContext context, AsyncSnapshot<List<Transaction>> snapshot) {
+      body: StreamBuilder<List<TransactionDto>>(
+        stream: getRecentTransactionsStream(), // Use the stream here
+        builder: (BuildContext context,
+            AsyncSnapshot<List<TransactionDto>> snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(child: CircularProgressIndicator()); // Loading state
           } else if (snapshot.hasError) {
@@ -28,7 +29,7 @@ class _HomePageState extends State<HomePage> {
           } else if (snapshot.hasData && snapshot.data!.isEmpty) {
             return Center(child: Text('No transactions found.'));
           } else if (snapshot.hasData) {
-            List<Transaction> transactions = snapshot.data!;
+            List<TransactionDto> transactions = snapshot.data!;
             List<Widget> recentTxns = [];
             transactions.forEach((tx) {
               recentTxns.add(transactionItem(
