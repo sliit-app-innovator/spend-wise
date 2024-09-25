@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "487573984172",
+    "project_id": "enterprise-mobility-23aee",
+    "storage_bucket": "enterprise-mobility-23aee.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:487573984172:android:89d153a5935c9b657c2009",
+        "android_client_info": {
+          "package_name": "com.example.spend_wise"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBC2dKv6aSmJoCF01uT3F1NpuiFZMruKw4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
