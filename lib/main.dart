@@ -115,7 +115,7 @@ class _MyAppState extends State<MyApp> {
         ),
       ),
       routes: <String, WidgetBuilder>{
-        '/home_page': (context) => const HomePage(),
+        '/home_page': (context) => HomePage(),
         '/transactions_page': (context) => const TransactionsPage(),
         '/transaction_page': (context) => const TransactionPage(),
         '/add_tranaction': (context) => const AddTransactionPage(),

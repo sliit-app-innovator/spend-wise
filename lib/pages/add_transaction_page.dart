@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:spend_wise/dto/transaction.dart';
+import 'package:uuid/uuid.dart';
+import 'package:intl/intl.dart';
 
 class AddTransactionPage extends StatefulWidget {
   const AddTransactionPage({super.key});
@@ -57,12 +60,18 @@ class _AddExpensesPage extends State<AddTransactionPage> {
       _formKey.currentState!.save();
 
       setState(() {
-        _transactions.add(Transaction(
-          type: _selectedType,
-          source: _selectedSourceType,
-          description: _description,
-          amount: _amount,
-        ));
+        String formattedDate = DateFormat('yyyy-MM-dd').format(DateTime.now());
+        Transaction txn = new Transaction(
+            id: const Uuid().v4().toString(),
+            userId: 'damith',
+            type: _selectedType,
+            source: _selectedSourceType,
+            description: _description,
+            amount: _amount,
+            txnTime: formattedDate,
+            attachementUrl: "NA");
+        _transactions.add(txn);
+        saveTransaction(txn);
       });
 
       _descriptionController.clear();
@@ -74,7 +83,7 @@ class _AddExpensesPage extends State<AddTransactionPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Enter Your Transaction Details'),
+        title: Text('New Transaction'),
         backgroundColor: Colors.brown[400],
       ),
       body: Padding(
@@ -183,18 +192,4 @@ class _AddExpensesPage extends State<AddTransactionPage> {
       ),
     );
   }
-}
-
-class Transaction {
-  final String type;
-  final String source;
-  final String description;
-  final double amount;
-
-  Transaction({
-    required this.type,
-    required this.source,
-    required this.description,
-    required this.amount,
-  });
 }
