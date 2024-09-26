@@ -60,14 +60,15 @@ class _AddExpensesPage extends State<AddTransactionPage> {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
 
-      String formattedDate = DateFormat('yyyy-MM-dd').format(DateTime.now());
+      String formattedDate =
+          DateFormat('yyyy-MM-dd hh:mm:ss').format(DateTime.now());
       TransactionDto txn = new TransactionDto(
           userId: 'damith',
           type: _selectedType,
           source: _selectedSourceType,
           description: _description,
           amount: _amount,
-          txnTime: '2024-08-30',
+          txnTime: formattedDate,
           attachmentUrl: "NA");
 
       await TransactionRepository().insertTransaction(txn);

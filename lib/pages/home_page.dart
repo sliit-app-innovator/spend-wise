@@ -17,11 +17,11 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    //  loadTransactions(); // Call loadTransactions when the widget initializes
+    loadTransactionsSummary(); // Call loadTransactions when the widget initializes
   }
 
   // Method to load transactions (can be async if needed)
-  void loadTransactions() async {
+  void loadTransactionsSummary() async {
     List<TransactionDto> loadedTransactions =
         await TransactionRepository().getTransactions(); // Fetch transactions
     setState(() {

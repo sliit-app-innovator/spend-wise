@@ -60,11 +60,16 @@ class TransactionRepository {
   // Retrieve all transactions
   Future<List<TransactionDto>> getTransactions() async {
     DateTime now = DateTime.now();
-    DateTime startOfMonth = DateTime(now.year, now.month, 1);
-    DateTime endOfMonth = DateTime(now.year, now.month + 1, 0);
+    String startOfMonth = DateTime(now.year, now.month, 1).toString();
+    String endOfMonth = DateTime(now.year, now.month + 1, 0).toString();
 
     Database db = await database;
-    List<Map<String, dynamic>> result = await db.query('transactions');
+    //db.delete('transactions');
+    List<Map<String, dynamic>> result = await db.query('transactions',
+        where: 'txnTime >= ? AND txnTime <= ?',
+        whereArgs: [startOfMonth, endOfMonth],
+        orderBy: 'txnTime DESC',
+        limit: 10);
     return result.map((map) => TransactionDto.fromJson(map)).toList();
   }
 
@@ -79,10 +84,17 @@ class TransactionRepository {
   }
 
   Stream<List<TransactionDto>> getAllTransactionsStreamSQLLimit() {
+    DateTime now = DateTime.now();
+    String startOfMonth = DateTime(now.year, now.month, 1).toString();
+    String endOfMonth = DateTime(now.year, now.month + 1, 0).toString();
+
     return Stream.fromFuture(() async {
       Database db = await database;
-      List<Map<String, dynamic>> result =
-          await db.query('transactions', limit: 100, orderBy: 'txnTime DESC');
+      List<Map<String, dynamic>> result = await db.query('transactions',
+          where: 'txnTime >= ? AND txnTime <= ?',
+          whereArgs: [startOfMonth, endOfMonth],
+          orderBy: 'txnTime DESC',
+          limit: 10);
       return result.map((map) => TransactionDto.fromJson(map)).toList();
     }());
   }
