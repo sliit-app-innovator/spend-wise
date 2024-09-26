@@ -1,4 +1,5 @@
 import 'package:path/path.dart';
+import 'package:spend_wise/dto/mothly_transaction_summary_view.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:spend_wise/dto/transaction.dart';
 
@@ -118,5 +119,41 @@ class TransactionRepository {
       where: 'id = ?',
       whereArgs: [id],
     );
+  }
+
+  Future<MonthlyTransactionSummary> getMonthlyTransactionSummary() async {
+    MonthlyTransactionSummary summary;
+    Map<String, int> sampleMap = {
+      'apple': 3,
+      'banana': 5,
+      'orange': 2,
+    };
+
+    // Initialize an empty list to hold transactions
+    List<TransactionDto> transactions = [];
+
+    // Get the stream of transactions
+    Stream<List<TransactionDto>> transactionStream =
+        getAllTransactionsStreamSQLLimit();
+
+    // Use await for to process the stream asynchronously
+    await for (List<TransactionDto> transactionBatch in transactionStream) {
+      transactions.addAll(transactionBatch); // Add all transactions to the list
+    }
+
+    // Now all the transactions have been added to the list
+    print("Final transactions count: ${transactions.length}");
+
+    // Create the summary with the full transaction list
+    summary = MonthlyTransactionSummary(
+      trasactions: transactions, // Full transaction list
+      totalIncome: 1000,
+      totalExpense: 1000,
+      expensesMap: sampleMap,
+    );
+
+    print("Summary transactions count: ${summary.trasactions.length}");
+
+    return summary; // Return the fully constructed summary
   }
 }

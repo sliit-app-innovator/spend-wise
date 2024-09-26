@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:spend_wise/dto/transaction.dart';
 import 'package:spend_wise/pages/add_transaction_page.dart';
 import 'package:spend_wise/model/transaction_repository.dart';
+import 'package:spend_wise/dto/mothly_transaction_summary_view.dart';
 
 class HomePage extends StatefulWidget {
   //const HomePage({super.key});
@@ -21,39 +22,35 @@ class _HomePageState extends State<HomePage> {
   }
 
   // Method to load transactions (can be async if needed)
-  void loadTransactionsSummary() async {
-    List<TransactionDto> loadedTransactions =
-        await TransactionRepository().getTransactions(); // Fetch transactions
+  void loadTransactionsSummary() {
+    DateTime now = DateTime.now();
+    TransactionRepository()
+        .getMonthlyTransactionSummary(); // Fetch transactions
     setState(() {
-      loadedTransactions.forEach((tx) {
-        recentTxns.add(transactionItem(
-            tx.source,
-            tx.txnTime,
-            tx.amount.toString(),
-            'LKR',
-            tx.type == 'Income'
-                ? 'assets/images/income.png'
-                : 'assets/images/expense.png'));
-      }); // Update state with fetched transactions
+      //totalExp = 100;
+      //totalInc = 1000;
     });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: FutureBuilder<List<TransactionDto>>(
-        future:
-            TransactionRepository().getTransactions(), // Use the stream here
+      body: FutureBuilder<MonthlyTransactionSummary>(
+        future: TransactionRepository().getMonthlyTransactionSummary(),
         builder: (BuildContext context,
-            AsyncSnapshot<List<TransactionDto>> snapshot) {
+            AsyncSnapshot<MonthlyTransactionSummary> snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return CircularProgressIndicator();
           } else if (snapshot.hasError) {
             return Text('Error: ${snapshot.error}');
           } else if (snapshot.hasData) {
-            final List<TransactionDto> expenseList = snapshot.data!;
+            final MonthlyTransactionSummary summary = snapshot.data!;
             List<Widget> recentTxns = [];
-            expenseList.forEach((tx) {
+            int totalExp = 0;
+            int totalInc = 0;
+            String balance = "0";
+
+            summary.trasactions.forEach((tx) {
               recentTxns.add(transactionItem(
                   tx.source,
                   tx.txnTime,
@@ -63,6 +60,11 @@ class _HomePageState extends State<HomePage> {
                       ? 'assets/images/income.png'
                       : 'assets/images/expense.png'));
             });
+
+            totalExp = summary.totalExpense;
+            totalInc = summary.totalIncome;
+            balance = (totalInc - totalExp).toString();
+
             return Padding(
               padding:
                   const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
