@@ -1,21 +1,21 @@
 class TransactionDto {
-  final String id;
+  int? id;
   final String userId;
   final String type;
   final String source;
   final String description;
   final double amount;
-  final String attachementUrl;
+  final String attachmentUrl;
   final String txnTime;
 
   TransactionDto(
-      {required this.id,
+      {this.id,
       required this.userId,
       required this.type,
       required this.source,
       required this.description,
       required this.amount,
-      required this.attachementUrl,
+      required this.attachmentUrl,
       required this.txnTime});
 
   // Converts User object to a map to store in Firestore
@@ -27,7 +27,20 @@ class TransactionDto {
       'source': source,
       'description': description,
       'amount': amount,
-      'attachementUrl': attachementUrl,
+      'attachmentUrl': attachmentUrl,
+      'txnTime': txnTime
+    };
+  }
+
+  Map<String, Object?> toJsonSQL() {
+    return {
+      'id': id,
+      'userId': userId,
+      'type': type,
+      'source': source,
+      'description': description,
+      'amount': amount,
+      'attachmentUrl': attachmentUrl,
       'txnTime': txnTime
     };
   }
@@ -40,7 +53,7 @@ class TransactionDto {
         source: json['source'],
         description: json['description'],
         amount: json['amount'],
-        attachementUrl: json['attachementUrl'],
+        attachmentUrl: json['attachmentUrl'],
         txnTime: json['txnTime']);
   }
 }

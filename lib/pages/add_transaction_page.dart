@@ -56,23 +56,23 @@ class _AddExpensesPage extends State<AddTransactionPage> {
   final TextEditingController _descriptionController = TextEditingController();
   final TextEditingController _amountController = TextEditingController();
 
-  void _addTransaction() {
+  void _addTransaction() async {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
 
+      String formattedDate = DateFormat('yyyy-MM-dd').format(DateTime.now());
+      TransactionDto txn = new TransactionDto(
+          userId: 'damith',
+          type: _selectedType,
+          source: _selectedSourceType,
+          description: _description,
+          amount: _amount,
+          txnTime: '2024-08-30',
+          attachmentUrl: "NA");
+
+      await TransactionRepository().insertTransaction(txn);
       setState(() {
-        String formattedDate = DateFormat('yyyy-MM-dd').format(DateTime.now());
-        TransactionDto txn = new TransactionDto(
-            id: const Uuid().v4().toString(),
-            userId: 'damith',
-            type: _selectedType,
-            source: _selectedSourceType,
-            description: _description,
-            amount: _amount,
-            txnTime: formattedDate,
-            attachementUrl: "NA");
         _transactions.add(txn);
-        saveTransaction(txn);
       });
 
       _descriptionController.clear();

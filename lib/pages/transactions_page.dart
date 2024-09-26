@@ -17,7 +17,8 @@ class _PaymentsPageState extends State<TransactionsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: StreamBuilder<List<TransactionDto>>(
-        stream: getRecentTransactionsStream(), // Use the stream here
+        stream: TransactionRepository()
+            .getAllTransactionsStreamSQLLimit(), // Use the stream here
         builder: (BuildContext context,
             AsyncSnapshot<List<TransactionDto>> snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -43,6 +44,7 @@ class _PaymentsPageState extends State<TransactionsPage> {
 
             return ListView(
               children: recentTxns,
+              padding: EdgeInsets.all(20.0),
             );
           } else {
             return Center(child: Text('No data available.'));

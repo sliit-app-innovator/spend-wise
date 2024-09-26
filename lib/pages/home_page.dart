@@ -5,6 +5,7 @@ import 'package:spend_wise/model/transaction_repository.dart';
 
 class HomePage extends StatefulWidget {
   //const HomePage({super.key});
+
   @override
   _HomePageState createState() => _HomePageState();
 }
@@ -14,24 +15,45 @@ class _HomePageState extends State<HomePage> {
   List<Widget> recentTxns = [];
 
   @override
+  void initState() {
+    super.initState();
+    //  loadTransactions(); // Call loadTransactions when the widget initializes
+  }
+
+  // Method to load transactions (can be async if needed)
+  void loadTransactions() async {
+    List<TransactionDto> loadedTransactions =
+        await TransactionRepository().getTransactions(); // Fetch transactions
+    setState(() {
+      loadedTransactions.forEach((tx) {
+        recentTxns.add(transactionItem(
+            tx.source,
+            tx.txnTime,
+            tx.amount.toString(),
+            'LKR',
+            tx.type == 'Income'
+                ? 'assets/images/income.png'
+                : 'assets/images/expense.png'));
+      }); // Update state with fetched transactions
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    //   loadTransactions();
     return Scaffold(
-      body: StreamBuilder<List<TransactionDto>>(
-        stream: getRecentTransactionsStream(), // Use the stream here
+      body: FutureBuilder<List<TransactionDto>>(
+        future:
+            TransactionRepository().getTransactions(), // Use the stream here
         builder: (BuildContext context,
             AsyncSnapshot<List<TransactionDto>> snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator()); // Loading state
+            return CircularProgressIndicator();
           } else if (snapshot.hasError) {
-            return Center(
-                child: Text('Error: ${snapshot.error}')); // Error state
-          } else if (snapshot.hasData && snapshot.data!.isEmpty) {
-            return Center(child: Text('No transactions found.'));
+            return Text('Error: ${snapshot.error}');
           } else if (snapshot.hasData) {
-            List<TransactionDto> transactions = snapshot.data!;
+            final List<TransactionDto> expenseList = snapshot.data!;
             List<Widget> recentTxns = [];
-            transactions.forEach((tx) {
+            expenseList.forEach((tx) {
               recentTxns.add(transactionItem(
                   tx.source,
                   tx.txnTime,
@@ -41,7 +63,6 @@ class _HomePageState extends State<HomePage> {
                       ? 'assets/images/income.png'
                       : 'assets/images/expense.png'));
             });
-
             return Padding(
               padding:
                   const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
@@ -64,7 +85,7 @@ class _HomePageState extends State<HomePage> {
                         ),
                         SizedBox(height: 10),
                         Text(
-                          '\$59,765.00',
+                          'LKR 59,765.00',
                           style: TextStyle(
                               color: Colors.white,
                               fontSize: 32,
@@ -119,7 +140,7 @@ class _HomePageState extends State<HomePage> {
               ),
             );
           } else {
-            return Center(child: Text('No data available.'));
+            return Text('Error: ${snapshot.error}');
           }
         },
       ),
