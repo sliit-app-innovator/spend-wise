@@ -35,13 +35,19 @@ class _PaymentsPageState extends State<TransactionsPage> {
             List<Widget> recentTxns = [];
             transactions.forEach((tx) {
               recentTxns.add(transactionItem(
+                  tx.id.toString(),
                   tx.source,
+                  tx.type,
+                  tx.description,
                   tx.txnTime,
                   tx.amount,
                   'LKR',
-                  tx.type == 'Income'
+                  (tx.type == 'Income'
                       ? 'assets/images/income.png'
-                      : 'assets/images/expense.png'));
+                      : 'assets/images/expense.png'),
+                  (tx.type == 'Income'
+                      ? Icon(Icons.get_app_rounded, color: Colors.brown)
+                      : Icon(Icons.upload_outlined, color: Colors.brown))));
             });
 
             return Padding(
@@ -92,10 +98,18 @@ class _PaymentsPageState extends State<TransactionsPage> {
     );
   }
 
-  Widget transactionItem(String source, String datetime, double amount,
-      String currency, iconPath) {
+  Widget transactionItem(
+      String id,
+      String source,
+      String type,
+      String note,
+      String datetime,
+      double amount,
+      String currency,
+      iconPath,
+      Icon viewIcon) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 10.0),
+      padding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
@@ -110,7 +124,7 @@ class _PaymentsPageState extends State<TransactionsPage> {
                   ),
                 ),
               )),
-          const SizedBox(width: 20),
+          const SizedBox(width: 10),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -119,29 +133,127 @@ class _PaymentsPageState extends State<TransactionsPage> {
                 style: const TextStyle(fontWeight: FontWeight.bold),
               ),
               Text(
-                datetime,
+                datetime.substring(0, 10),
                 style: const TextStyle(color: Colors.grey),
               ),
             ],
           ),
           const Spacer(),
-          Text('${amount.toStringAsFixed(2)}    ',
+          Text(amount.toStringAsFixed(2),
               style: const TextStyle(fontWeight: FontWeight.bold)),
           IconButton(
-            icon: Icon(Icons.get_app_rounded, color: Colors.brown),
+            icon: viewIcon,
             onPressed: () {
               showDialog(
                 context: context,
                 builder: (BuildContext context) {
                   return AlertDialog(
-                    title: Text('Action'),
-                    content: Text('You clicked the download icon.'),
+                    titlePadding: EdgeInsets.zero,
+                    title: Container(
+                      color: Colors.brown,
+                      padding: const EdgeInsets.all(16),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.get_app_rounded,
+                              color: Colors.white),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              source,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    content: Text(
+                      'Type : $type\n\nDate : $datetime\n\nNote : $note',
+                      style: TextStyle(
+                        color: Colors.grey[700], // Message text color
+                        fontSize: 16,
+                      ),
+                    ),
                     actions: [
                       TextButton(
                         onPressed: () {
                           Navigator.of(context).pop(); // Close the dialog
                         },
-                        child: Text('OK'),
+                        child: const Text(
+                          'OK',
+                          style: TextStyle(
+                              color: Colors.brown), // Button text color
+                        ),
+                      ),
+                    ],
+                  );
+                },
+              );
+            },
+          ),
+          IconButton(
+            icon:
+                const Icon(Icons.delete_outline_outlined, color: Colors.brown),
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    titlePadding:
+                        EdgeInsets.zero, // Remove default padding for the title
+                    title: Container(
+                      color: Colors.brown, // Title bar background color
+                      padding: const EdgeInsets.all(
+                          16), // Padding for the title text
+                      child: const Row(
+                        children: [
+                          Icon(Icons.warning_amber_rounded,
+                              color: Colors.white),
+                          SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              'Confirm Delete',
+                              style: TextStyle(
+                                color: Colors.white, // Title text color
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    content: Text(
+                      'Are you sure you want to delete this item?',
+                      style: TextStyle(
+                        color: Colors.grey[700],
+                        fontSize: 16,
+                      ),
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                        child: const Text(
+                          'Cancel',
+                          style: TextStyle(color: Colors.brown),
+                        ),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          print(TransactionRepository()
+                              .deleteTransaction(int.parse(id)));
+                          recentTxns.remove(this);
+                          Navigator.of(context).pop();
+                        },
+                        child: const Text(
+                          'Delete',
+                          style: TextStyle(color: Colors.red),
+                        ),
                       ),
                     ],
                   );

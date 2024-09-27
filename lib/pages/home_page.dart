@@ -127,7 +127,7 @@ class _HomePageState extends State<HomePage> {
                   Container(
                     width: double.infinity,
                     padding:
-                        EdgeInsets.all(16.0), // Add padding around the text
+                        EdgeInsets.all(10.0), // Add padding around the text
                     //  color: Color(0xFFD6C4A8), // Light brown color
                     decoration: BoxDecoration(
                       color: const Color.fromARGB(255, 240, 215, 206),
@@ -156,7 +156,7 @@ class _HomePageState extends State<HomePage> {
                   Container(
                     width: double.infinity,
                     padding:
-                        EdgeInsets.all(16.0), // Add padding around the text
+                        EdgeInsets.all(10.0), // Add padding around the text
                     //  color: Color(0xFFD6C4A8), // Light brown color
                     decoration: BoxDecoration(
                       color: const Color.fromARGB(255, 240, 215, 206),
