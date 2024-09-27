@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:spend_wise/utils/colors.dart';
 import 'pages/add_transaction_page.dart';
 import 'pages/modify_transaction_page.dart';
 import 'pages/home_page.dart';
@@ -85,7 +86,7 @@ class _MyAppState extends State<MyApp> {
       home: Scaffold(
         appBar: AppBar(
           title: const Text('Spend Wise'),
-          backgroundColor: Colors.brown[400],
+          backgroundColor: AppColors.APP_ABR_COLOR,
           actions: [
             IconButton(
               onPressed: () {},

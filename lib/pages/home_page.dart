@@ -3,6 +3,7 @@ import 'package:spend_wise/dto/transaction.dart';
 import 'package:spend_wise/pages/add_transaction_page.dart';
 import 'package:spend_wise/model/transaction_repository.dart';
 import 'package:spend_wise/dto/mothly_transaction_summary_view.dart';
+import 'package:spend_wise/utils/colors.dart';
 import 'package:fl_chart/fl_chart.dart';
 
 class HomePage extends StatefulWidget {
@@ -47,6 +48,7 @@ class _HomePageState extends State<HomePage> {
           } else if (snapshot.hasData) {
             final MonthlyTransactionSummary summary = snapshot.data!;
             List<Widget> recentTxns = [];
+            List<Widget> summaryViews = [];
             double totalExp = 0;
             double totalInc = 0;
             double balance = 0;
@@ -61,6 +63,12 @@ class _HomePageState extends State<HomePage> {
                   tx.type == 'Income'
                       ? 'assets/images/income.png'
                       : 'assets/images/expense.png'));
+            });
+
+            summary.expensesMap.forEach((key, value) {
+              print('Category: $key, Amount: $value');
+              summaryViews
+                  .add(summaryItem(key, value, 'assets/images/expense.png'));
             });
 
             totalExp = summary.totalExpense;
@@ -84,7 +92,7 @@ class _HomePageState extends State<HomePage> {
                   Container(
                     padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
-                      color: Colors.brown[300],
+                      color: AppColors.BOX_DECORATION_COLOR,
                       borderRadius: BorderRadius.circular(15),
                     ),
                     child: Column(
@@ -121,33 +129,61 @@ class _HomePageState extends State<HomePage> {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 30),
                   // Analytics
-                  const Text(
-                    'Analytics',
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                  Container(
+                    width: double.infinity,
+                    padding:
+                        EdgeInsets.all(16.0), // Add padding around the text
+                    //  color: Color(0xFFD6C4A8), // Light brown color
+                    decoration: BoxDecoration(
+                      color: const Color.fromARGB(255, 240, 215, 206),
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    child: const Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Summary',
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 18),
+                        ),
+                        Icon(Icons.summarize_outlined,
+                            color: AppColors.TABLE_HEADER_COLOR),
+                      ],
+                    ),
                   ),
-
-                  const SizedBox(height: 10),
-
+                  Expanded(
+                    child: ListView(
+                      children: summaryViews,
+                    ),
+                  ),
                   const SizedBox(height: 20),
                   // Transactions
-                  const Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Recent Transactions',
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 18),
-                      ),
-                      Text(
-                        'View All',
-                        style: TextStyle(
-                            color: Colors.orange, fontWeight: FontWeight.bold),
-                      ),
-                    ],
+                  Container(
+                    width: double.infinity,
+                    padding:
+                        EdgeInsets.all(16.0), // Add padding around the text
+                    //  color: Color(0xFFD6C4A8), // Light brown color
+                    decoration: BoxDecoration(
+                      color: const Color.fromARGB(255, 240, 215, 206),
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    child: const Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Recent Transactions',
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 18),
+                        ),
+                        Icon(Icons.list_alt_outlined,
+                            color: AppColors.TABLE_HEADER_COLOR),
+                      ],
+                    ),
                   ),
-                  const SizedBox(height: 10),
+
+                  //const SizedBox(height: 10),
                   Expanded(
                     child: ListView(
                       children: recentTxns,
@@ -225,6 +261,30 @@ class _HomePageState extends State<HomePage> {
               Text(
                 datetime,
                 style: const TextStyle(color: Colors.grey),
+              ),
+            ],
+          ),
+          const Spacer(),
+          Text(
+            amount.toStringAsFixed(2),
+            style: const TextStyle(fontWeight: FontWeight.bold),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget summaryItem(String source, double amount, iconPath) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 10.0),
+      child: Row(
+        children: [
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                source,
+                style: const TextStyle(fontWeight: FontWeight.bold),
               ),
             ],
           ),

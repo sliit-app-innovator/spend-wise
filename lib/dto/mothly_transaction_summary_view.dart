@@ -4,7 +4,7 @@ class MonthlyTransactionSummary {
   final List<TransactionDto> trasactions;
   final double totalIncome;
   final double totalExpense;
-  final Map<String, int> expensesMap;
+  final Map<String, double> expensesMap;
 
   MonthlyTransactionSummary(
       {required this.trasactions,

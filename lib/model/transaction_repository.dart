@@ -95,7 +95,7 @@ class TransactionRepository {
           where: 'txnTime >= ? AND txnTime <= ?',
           whereArgs: [startOfMonth, endOfMonth],
           orderBy: 'txnTime DESC',
-          limit: 10);
+          limit: 1000);
       return result.map((map) => TransactionDto.fromJson(map)).toList();
     }());
   }
@@ -128,11 +128,7 @@ class TransactionRepository {
     double _totalIncome = 0.0;
     double _totalExpense = 0.0;
 
-    Map<String, int> sampleMap = {
-      'apple': 3,
-      'banana': 5,
-      'orange': 2,
-    };
+    Map<String, double> sampleMap = {};
 
     // Get the stream of transactions
     Stream<List<TransactionDto>> transactionStream =
@@ -147,6 +143,14 @@ class TransactionRepository {
           _totalIncome = _totalIncome + txn.amount;
         } else {
           _totalExpense = _totalExpense + txn.amount;
+        }
+        if (sampleMap.containsKey(txn.source)) {
+          // If it exists, add the amount to the existing value
+          sampleMap[txn.source] =
+              sampleMap[txn.source]! + txn.amount; // Use '!' to assert non-null
+        } else {
+          // If it doesn't exist, add the new key and amount
+          sampleMap[txn.source] = txn.amount;
         }
       });
     }

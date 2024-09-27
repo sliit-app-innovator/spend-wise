@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:spend_wise/pages/add_transaction_page.dart';
 import 'package:spend_wise/dto/transaction.dart';
+import 'package:spend_wise/pages/transaction_page.dart';
 import 'package:spend_wise/model/transaction_repository.dart';
+import 'package:spend_wise/utils/colors.dart';
 
 class TransactionsPage extends StatefulWidget {
   const TransactionsPage({super.key});
@@ -35,16 +37,52 @@ class _PaymentsPageState extends State<TransactionsPage> {
               recentTxns.add(transactionItem(
                   tx.source,
                   tx.txnTime,
-                  tx.amount.toString(),
+                  tx.amount,
                   'LKR',
                   tx.type == 'Income'
                       ? 'assets/images/income.png'
                       : 'assets/images/expense.png'));
             });
 
-            return ListView(
-              children: recentTxns,
-              padding: EdgeInsets.all(20.0),
+            return Padding(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 5),
+                  // Transactions
+                  Container(
+                    width: double.infinity,
+                    padding:
+                        EdgeInsets.all(16.0), // Add padding around the text
+                    //  color: Color(0xFFD6C4A8), // Light brown color
+                    decoration: BoxDecoration(
+                      color: const Color.fromARGB(255, 240, 215, 206),
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    child: const Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'This Month Transactions',
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 18),
+                        ),
+                        Icon(Icons.list_alt_outlined,
+                            color: AppColors.TABLE_HEADER_COLOR),
+                      ],
+                    ),
+                  ),
+
+                  //const SizedBox(height: 10),
+                  Expanded(
+                    child: ListView(
+                      children: recentTxns,
+                    ),
+                  ),
+                ],
+              ),
             );
           } else {
             return Center(child: Text('No data available.'));
@@ -54,57 +92,17 @@ class _PaymentsPageState extends State<TransactionsPage> {
     );
   }
 
-  //@override
-  Widget build1(BuildContext context) {
-    return Scaffold(
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Transactions
-            const Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'Recent Transactions',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-                ),
-              ],
-            ),
-            const SizedBox(height: 10),
-            Expanded(
-              child: ListView(
-                children: recentTxns,
-              ),
-            ),
-          ],
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const AddTransactionPage()),
-          );
-        },
-        backgroundColor: Colors.orange,
-        child: Icon(Icons.add),
-      ), // Show the FAB only on the HomePage
-    );
-  }
-
-  Widget transactionItem(String source, String datetime, String amount,
+  Widget transactionItem(String source, String datetime, double amount,
       String currency, iconPath) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 10.0),
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
         children: [
           CircleAvatar(
               radius: 20,
               child: Padding(
-                padding:
-                    EdgeInsets.all(10), // Add padding to reduce the image size
+                padding: EdgeInsets.all(10),
                 child: ClipOval(
                   child: Image.asset(
                     iconPath,
@@ -127,10 +125,18 @@ class _PaymentsPageState extends State<TransactionsPage> {
             ],
           ),
           const Spacer(),
-          Text(
-            '$currency $amount',
-            style: const TextStyle(fontWeight: FontWeight.bold),
-          ),
+          Text('${amount.toStringAsFixed(2)}    ',
+              style: const TextStyle(fontWeight: FontWeight.bold)),
+          IconButton(
+            icon: Icon(Icons.get_app_rounded, color: Colors.brown),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => const TransactionPage()),
+              );
+            },
+          )
         ],
       ),
     );
