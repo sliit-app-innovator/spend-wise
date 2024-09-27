@@ -141,12 +141,6 @@ class _AddExpensesPage extends State<AddTransactionPage> {
                   TextFormField(
                     controller: _descriptionController,
                     decoration: InputDecoration(labelText: 'Description'),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter a description';
-                      }
-                      return null;
-                    },
                     onSaved: (value) {
                       _description = value!;
                     },

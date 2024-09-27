@@ -87,6 +87,7 @@ class _MyAppState extends State<MyApp> {
         appBar: AppBar(
           title: const Text('Spend Wise'),
           backgroundColor: AppColors.APP_ABR_COLOR,
+          foregroundColor: Colors.white,
           actions: [
             IconButton(
               onPressed: () {},
