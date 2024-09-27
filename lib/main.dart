@@ -40,6 +40,7 @@ class _MyAppState extends State<MyApp> {
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
+      HomePage();
     });
   }
 
@@ -83,7 +84,7 @@ class _MyAppState extends State<MyApp> {
       debugShowCheckedModeBanner: false,
       home: Scaffold(
         appBar: AppBar(
-          title: const Text('Expensive World'),
+          title: const Text('Spend Wise'),
           backgroundColor: Colors.brown[400],
           actions: [
             IconButton(

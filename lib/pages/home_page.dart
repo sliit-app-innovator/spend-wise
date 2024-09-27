@@ -127,23 +127,7 @@ class _HomePageState extends State<HomePage> {
                     'Analytics',
                     style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
                   ),
-                  PieChart(
-                    PieChartData(
-                      sections: dataMap.entries
-                          .map(
-                            (entry) => PieChartSectionData(
-                              title: entry.key,
-                              value: entry.value,
-                              color: _getRandomColor(entry.key),
-                              titleStyle: TextStyle(
-                                  fontSize: 16, fontWeight: FontWeight.bold),
-                            ),
-                          )
-                          .toList(),
-                      centerSpaceRadius: 50,
-                      sectionsSpace: 2,
-                    ),
-                  ),
+
                   const SizedBox(height: 10),
 
                   const SizedBox(height: 20),
@@ -189,6 +173,23 @@ class _HomePageState extends State<HomePage> {
         child: Icon(Icons.add),
       ), // Show the FAB only on the HomePage
     );
+  }
+
+  List<BarChartGroupData> _generateBarGroups(Map<String, double> dataMap) {
+    return List.generate(dataMap.length, (index) {
+      final value = dataMap.values.elementAt(index);
+      return BarChartGroupData(
+        x: index,
+        barRods: [
+          BarChartRodData(
+            toY: value, // The height of the bar
+            color: Colors.blue,
+            width: 22,
+            borderRadius: BorderRadius.circular(4),
+          ),
+        ],
+      );
+    });
   }
 
   Color _getRandomColor(String key) {
@@ -237,3 +238,60 @@ class _HomePageState extends State<HomePage> {
     );
   }
 }
+
+/*
+
+ BarChart(
+                    BarChartData(
+                      alignment: BarChartAlignment.spaceAround,
+                      barGroups: _generateBarGroups(
+                          dataMap), // Method to generate bar groups from Map
+                      borderData: FlBorderData(
+                        show: false, // Disable the border around the chart
+                      ),
+                      titlesData: FlTitlesData(
+                        bottomTitles: AxisTitles(
+                          sideTitles: SideTitles(
+                            showTitles: true,
+                            getTitlesWidget: (double value, TitleMeta meta) {
+                              // Convert index back to category name from the map
+                              return Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 8.0),
+                                child:
+                                    Text(dataMap.keys.elementAt(value.toInt())),
+                              );
+                            },
+                            reservedSize: 28,
+                          ),
+                        ),
+                        leftTitles: AxisTitles(
+                          sideTitles: SideTitles(
+                            showTitles: true,
+                            interval: 10, // Control the number intervals
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),*
+                  
+                  
+                   PieChart(
+                    PieChartData(
+                      sections: dataMap.entries
+                          .map(
+                            (entry) => PieChartSectionData(
+                              title: entry.key,
+                              value: entry.value,
+                              color: _getRandomColor(entry.key),
+                              titleStyle: TextStyle(
+                                  fontSize: 16, fontWeight: FontWeight.bold),
+                            ),
+                          )
+                          .toList(),
+                      centerSpaceRadius: 50,
+                      sectionsSpace: 2,
+                    ),
+                  )
+                  
+                  */
