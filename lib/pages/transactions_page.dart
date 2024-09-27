@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:spend_wise/main.dart';
 import 'package:spend_wise/pages/add_transaction_page.dart';
 import 'package:spend_wise/dto/transaction.dart';
+import 'package:spend_wise/pages/home_page.dart';
 import 'package:spend_wise/pages/transaction_page.dart';
 import 'package:spend_wise/model/transaction_repository.dart';
 import 'package:spend_wise/utils/colors.dart';
@@ -32,23 +34,31 @@ class _PaymentsPageState extends State<TransactionsPage> {
             return Center(child: Text('No transactions found.'));
           } else if (snapshot.hasData) {
             List<TransactionDto> transactions = snapshot.data!;
-            List<Widget> recentTxns = [];
+            ;
+            List<Map<String, dynamic>> recentTxns = [];
+
             transactions.forEach((tx) {
-              recentTxns.add(transactionItem(
-                  tx.id.toString(),
-                  tx.source,
-                  tx.type,
-                  tx.description,
-                  tx.txnTime,
-                  tx.amount,
-                  'LKR',
-                  (tx.type == 'Income'
-                      ? 'assets/images/income.png'
-                      : 'assets/images/expense.png'),
-                  (tx.type == 'Income'
-                      ? Icon(Icons.get_app_rounded, color: Colors.brown)
-                      : Icon(Icons.upload_outlined, color: Colors.brown))));
+              recentTxns.add({
+                'id': tx.id.toString(),
+                'widget': transactionItem(
+                    tx.id.toString(),
+                    tx.source,
+                    tx.type,
+                    tx.description,
+                    tx.txnTime,
+                    tx.amount,
+                    'LKR',
+                    (tx.type == 'Income'
+                        ? 'assets/images/income.png'
+                        : 'assets/images/expense.png'),
+                    (tx.type == 'Income'
+                        ? Icon(Icons.get_app_rounded, color: Colors.brown)
+                        : Icon(Icons.upload_outlined, color: Colors.brown))),
+              });
             });
+
+            List<Widget> widgetList =
+                recentTxns.map((txn) => txn['widget'] as Widget).toList();
 
             return Padding(
               padding:
@@ -83,9 +93,7 @@ class _PaymentsPageState extends State<TransactionsPage> {
 
                   //const SizedBox(height: 10),
                   Expanded(
-                    child: ListView(
-                      children: recentTxns,
-                    ),
+                    child: ListView(children: widgetList),
                   ),
                 ],
               ),
@@ -247,8 +255,15 @@ class _PaymentsPageState extends State<TransactionsPage> {
                         onPressed: () {
                           print(TransactionRepository()
                               .deleteTransaction(int.parse(id)));
-                          recentTxns.remove(this);
+
                           Navigator.of(context).pop();
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (BuildContext context) =>
+                                  MyApp(), // Replace with your page
+                            ),
+                          );
                         },
                         child: const Text(
                           'Delete',
