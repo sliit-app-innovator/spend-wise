@@ -35,10 +35,9 @@ class TransactionRepository {
 
   // Create the table
   Future _onCreate(Database db, int version) async {
-    await db.execute('''DROP TABLE transactions''');
     await db.execute('''
       CREATE TABLE transactions(
-        id INT PRIMARY KEY AUTOINCREMENT,
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
         userId TEXT,
         type TEXT,
         source TEXT,

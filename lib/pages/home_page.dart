@@ -75,13 +75,6 @@ class _HomePageState extends State<HomePage> {
             totalInc = summary.totalIncome;
             balance = totalInc - totalExp;
 
-            final Map<String, double> dataMap = {
-              "Food": 40,
-              "Rent": 30,
-              "Transport": 20,
-              "Entertainment": 10,
-            };
-
             return Padding(
               padding:
                   const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
@@ -119,7 +112,7 @@ class _HomePageState extends State<HomePage> {
                             ),
                             Spacer(),
                             Text(
-                              'Expense   ${totalInc.toStringAsFixed(2)}',
+                              'Expense   ${totalExp.toStringAsFixed(2)}',
                               style: TextStyle(color: Colors.white70),
                             ),
                             Spacer(),

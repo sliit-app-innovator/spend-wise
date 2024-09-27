@@ -130,10 +130,22 @@ class _PaymentsPageState extends State<TransactionsPage> {
           IconButton(
             icon: Icon(Icons.get_app_rounded, color: Colors.brown),
             onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => const TransactionPage()),
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    title: Text('Action'),
+                    content: Text('You clicked the download icon.'),
+                    actions: [
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop(); // Close the dialog
+                        },
+                        child: Text('OK'),
+                      ),
+                    ],
+                  );
+                },
               );
             },
           )
