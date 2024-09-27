@@ -46,6 +46,7 @@ dev_dependencies:
   firebase_storage: ^11.2.6
   image_picker: ^0.8.5+3
   shared_preferences: ^2.0.10
+  fl_chart: ^0.51.0
   flutter_test:
     sdk: flutter
 

@@ -2,8 +2,8 @@ import 'package:spend_wise/dto/transaction.dart';
 
 class MonthlyTransactionSummary {
   final List<TransactionDto> trasactions;
-  final int totalIncome;
-  final int totalExpense;
+  final double totalIncome;
+  final double totalExpense;
   final Map<String, int> expensesMap;
 
   MonthlyTransactionSummary(

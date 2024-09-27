@@ -61,7 +61,7 @@ class _AddExpensesPage extends State<AddTransactionPage> {
       _formKey.currentState!.save();
 
       String formattedDate =
-          DateFormat('yyyy-MM-dd hh:mm:ss').format(DateTime.now());
+          DateFormat('yyyy-MM-dd hh:mm:ss.SSS').format(DateTime.now());
       TransactionDto txn = new TransactionDto(
           userId: 'damith',
           type: _selectedType,

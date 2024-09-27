@@ -3,6 +3,7 @@ import 'package:spend_wise/dto/transaction.dart';
 import 'package:spend_wise/pages/add_transaction_page.dart';
 import 'package:spend_wise/model/transaction_repository.dart';
 import 'package:spend_wise/dto/mothly_transaction_summary_view.dart';
+import 'package:fl_chart/fl_chart.dart';
 
 class HomePage extends StatefulWidget {
   //const HomePage({super.key});
@@ -46,16 +47,17 @@ class _HomePageState extends State<HomePage> {
           } else if (snapshot.hasData) {
             final MonthlyTransactionSummary summary = snapshot.data!;
             List<Widget> recentTxns = [];
-            int totalExp = 0;
-            int totalInc = 0;
-            String balance = "0";
+            double totalExp = 0;
+            double totalInc = 0;
+            double balance = 0;
+            String currency = "LKR";
 
             summary.trasactions.forEach((tx) {
               recentTxns.add(transactionItem(
                   tx.source,
                   tx.txnTime,
-                  tx.amount.toString(),
-                  'LKR',
+                  tx.amount,
+                  currency,
                   tx.type == 'Income'
                       ? 'assets/images/income.png'
                       : 'assets/images/expense.png'));
@@ -63,7 +65,14 @@ class _HomePageState extends State<HomePage> {
 
             totalExp = summary.totalExpense;
             totalInc = summary.totalIncome;
-            balance = (totalInc - totalExp).toString();
+            balance = totalInc - totalExp;
+
+            final Map<String, double> dataMap = {
+              "Food": 40,
+              "Rent": 30,
+              "Transport": 20,
+              "Entertainment": 10,
+            };
 
             return Padding(
               padding:
@@ -78,26 +87,31 @@ class _HomePageState extends State<HomePage> {
                       color: Colors.brown[300],
                       borderRadius: BorderRadius.circular(15),
                     ),
-                    child: const Column(
+                    child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
+                        const Text(
                           'Total Balance',
                           style: TextStyle(color: Colors.white, fontSize: 16),
                         ),
-                        SizedBox(height: 10),
+                        const SizedBox(height: 10),
                         Text(
-                          'LKR 59,765.00',
-                          style: TextStyle(
+                          '$currency ${balance.toStringAsFixed(2)}',
+                          style: const TextStyle(
                               color: Colors.white,
                               fontSize: 32,
                               fontWeight: FontWeight.bold),
                         ),
-                        SizedBox(height: 10),
+                        const SizedBox(height: 10),
                         Row(
                           children: [
                             Text(
-                              '2644  7545  3867  1965',
+                              'Income   ${totalInc.toStringAsFixed(2)}',
+                              style: TextStyle(color: Colors.white70),
+                            ),
+                            Spacer(),
+                            Text(
+                              'Expense   ${totalInc.toStringAsFixed(2)}',
                               style: TextStyle(color: Colors.white70),
                             ),
                             Spacer(),
@@ -112,6 +126,23 @@ class _HomePageState extends State<HomePage> {
                   const Text(
                     'Analytics',
                     style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                  ),
+                  PieChart(
+                    PieChartData(
+                      sections: dataMap.entries
+                          .map(
+                            (entry) => PieChartSectionData(
+                              title: entry.key,
+                              value: entry.value,
+                              color: _getRandomColor(entry.key),
+                              titleStyle: TextStyle(
+                                  fontSize: 16, fontWeight: FontWeight.bold),
+                            ),
+                          )
+                          .toList(),
+                      centerSpaceRadius: 50,
+                      sectionsSpace: 2,
+                    ),
                   ),
                   const SizedBox(height: 10),
 
@@ -160,7 +191,11 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget transactionItem(String source, String datetime, String amount,
+  Color _getRandomColor(String key) {
+    return Colors.primaries[key.hashCode % Colors.primaries.length];
+  }
+
+  Widget transactionItem(String source, String datetime, double amount,
       String currency, iconPath) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 10.0),
@@ -194,7 +229,7 @@ class _HomePageState extends State<HomePage> {
           ),
           const Spacer(),
           Text(
-            '$currency $amount',
+            amount.toStringAsFixed(2),
             style: const TextStyle(fontWeight: FontWeight.bold),
           ),
         ],

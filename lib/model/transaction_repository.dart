@@ -123,14 +123,16 @@ class TransactionRepository {
 
   Future<MonthlyTransactionSummary> getMonthlyTransactionSummary() async {
     MonthlyTransactionSummary summary;
+    // Initialize an empty list to hold transactions
+    List<TransactionDto> transactions = [];
+    double _totalIncome = 0.0;
+    double _totalExpense = 0.0;
+
     Map<String, int> sampleMap = {
       'apple': 3,
       'banana': 5,
       'orange': 2,
     };
-
-    // Initialize an empty list to hold transactions
-    List<TransactionDto> transactions = [];
 
     // Get the stream of transactions
     Stream<List<TransactionDto>> transactionStream =
@@ -138,22 +140,27 @@ class TransactionRepository {
 
     // Use await for to process the stream asynchronously
     await for (List<TransactionDto> transactionBatch in transactionStream) {
-      transactions.addAll(transactionBatch); // Add all transactions to the list
+      //transactions.addAll(transactionBatch); // Add all transactions to the list
+      transactionBatch.forEach((txn) {
+        transactions.add(txn);
+        if (txn.type == 'Income') {
+          _totalIncome = _totalIncome + txn.amount;
+        } else {
+          _totalExpense = _totalExpense + txn.amount;
+        }
+      });
     }
-
     // Now all the transactions have been added to the list
     print("Final transactions count: ${transactions.length}");
 
     // Create the summary with the full transaction list
     summary = MonthlyTransactionSummary(
       trasactions: transactions, // Full transaction list
-      totalIncome: 1000,
-      totalExpense: 1000,
+      totalIncome: _totalIncome,
+      totalExpense: _totalExpense,
       expensesMap: sampleMap,
     );
-
     print("Summary transactions count: ${summary.trasactions.length}");
-
     return summary; // Return the fully constructed summary
   }
 }
