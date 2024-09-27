@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:spend_wise/main.dart';
+import 'package:spend_wise/container_page.dart';
 import 'package:spend_wise/pages/add_transaction_page.dart';
 import 'package:spend_wise/dto/transaction.dart';
 import 'package:spend_wise/pages/home_page.dart';
