@@ -6,6 +6,7 @@ import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart';
+import 'package:spend_wise/utils/colors.dart';
 
 class AddTransactionPage extends StatefulWidget {
   const AddTransactionPage({super.key});
@@ -93,6 +94,7 @@ class _AddExpensesPage extends State<AddTransactionPage> {
       appBar: AppBar(
         title: Text('New Transaction'),
         backgroundColor: Colors.brown[400],
+        foregroundColor: Colors.white,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -213,6 +215,7 @@ class _AddExpensesPage extends State<AddTransactionPage> {
                       child: const Text(
                         'Add Transaction',
                         style: TextStyle(
+                            color: Colors.white,
                             fontSize: 16), // Customize the font size if needed
                       ),
                     ),

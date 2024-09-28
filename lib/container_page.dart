@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:spend_wise/main.dart';
 import 'package:spend_wise/utils/colors.dart';
 import 'pages/add_transaction_page.dart';
 import 'pages/modify_transaction_page.dart';
@@ -119,12 +120,15 @@ class _MyAppState extends State<MyApp> {
 
   Drawer getLeftMenu(BuildContext context, File? imageFile) {
     return Drawer(
+        child: Container(
+      color: const Color.fromARGB(
+          255, 243, 238, 235), // Light brown background for the drawer body
       child: ListView(
         padding: EdgeInsets.zero,
         children: <Widget>[
           DrawerHeader(
             decoration: const BoxDecoration(
-              color: Colors.deepPurple,
+              color: Colors.brown,
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -205,12 +209,14 @@ class _MyAppState extends State<MyApp> {
             leading: const Icon(Icons.logout),
             title: const Text('Logout'),
             onTap: () {
-              // Handle logout
-              //   Navigator.pop(context);
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => Login()),
+              );
             },
           ),
         ],
       ),
-    );
+    ));
   }
 }
