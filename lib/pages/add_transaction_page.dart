@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:spend_wise/dto/transaction.dart';
-import 'package:uuid/uuid.dart';
 import 'package:intl/intl.dart';
 import 'package:spend_wise/model/transaction_repository.dart';
+import 'dart:io';
+import 'package:image_picker/image_picker.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:path/path.dart';
 
 class AddTransactionPage extends StatefulWidget {
   const AddTransactionPage({super.key});
@@ -51,6 +54,9 @@ class _AddExpensesPage extends State<AddTransactionPage> {
   ];
   String _description = '';
   double _amount = 0.0;
+  File? _imageFile;
+  String attachmentUrl = '';
+  final ImagePicker _picker = ImagePicker();
 
   // Controller to clear fields
   final TextEditingController _descriptionController = TextEditingController();
@@ -69,7 +75,7 @@ class _AddExpensesPage extends State<AddTransactionPage> {
           description: _description,
           amount: _amount,
           txnTime: formattedDate,
-          attachmentUrl: "NA");
+          attachmentUrl: attachmentUrl);
 
       await TransactionRepository().insertTransaction(txn);
       setState(() {
@@ -105,13 +111,9 @@ class _AddExpensesPage extends State<AddTransactionPage> {
                         if (_selectedType == 'Income') {
                           _selectedSourceTypes = incomeSourceType;
                           _selectedSourceType = 'Salary';
-                          ;
-                        } else if (_selectedType == 'Expense') {
+                        } else {
                           _selectedSourceTypes = expenseSourceType;
                           _selectedSourceType = 'Food & Groceries';
-                        } else {
-                          //    _selectedSourceTypes = [''];
-                          _selectedSourceTypes = expenseSourceType;
                         }
                       });
                     },
@@ -121,7 +123,14 @@ class _AddExpensesPage extends State<AddTransactionPage> {
                         child: Text(type),
                       );
                     }).toList(),
-                    decoration: InputDecoration(labelText: 'Transaction Type'),
+                    decoration:
+                        const InputDecoration(labelText: 'Transaction Type'),
+                    validator: (value) {
+                      if (value == null || value.isEmpty || value == 'Select') {
+                        return 'Please select  transaction source';
+                      }
+                      return null;
+                    },
                   ),
                   DropdownButtonFormField<String>(
                     value: _selectedSourceType,
@@ -137,17 +146,23 @@ class _AddExpensesPage extends State<AddTransactionPage> {
                       );
                     }).toList(),
                     decoration: InputDecoration(labelText: 'Source Type'),
+                    validator: (value) {
+                      if (value == null || value.isEmpty || value == 'Select') {
+                        return 'Please select  transaction source';
+                      }
+                      return null;
+                    },
                   ),
                   TextFormField(
                     controller: _descriptionController,
-                    decoration: InputDecoration(labelText: 'Description'),
+                    decoration: const InputDecoration(labelText: 'Description'),
                     onSaved: (value) {
                       _description = value!;
                     },
                   ),
                   TextFormField(
                     controller: _amountController,
-                    decoration: InputDecoration(labelText: 'Amount'),
+                    decoration: const InputDecoration(labelText: 'Amount'),
                     keyboardType: TextInputType.number,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
@@ -162,11 +177,46 @@ class _AddExpensesPage extends State<AddTransactionPage> {
                       _amount = double.parse(value!);
                     },
                   ),
-                  SizedBox(height: 20),
-                  ElevatedButton(
-                    onPressed: _addTransaction,
-                    child: Text('Add Transaction'),
+                  const SizedBox(height: 20),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      ElevatedButton(
+                        onPressed: _takePhoto,
+                        child: const Text('Take Photo'),
+                      ),
+                      const SizedBox(width: 20),
+                      _imageFile != null
+                          ? SizedBox(
+                              width: 40,
+                              height: 40,
+                              child: Image.file(_imageFile!, fit: BoxFit.cover),
+                            )
+                          : const Text('Add an attachment (optional)'),
+                    ],
                   ),
+                  Row(mainAxisAlignment: MainAxisAlignment.end, children: [
+                    ElevatedButton(
+                      onPressed: _addTransaction,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.brown,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius:
+                              BorderRadius.circular(8.0), // Rounded corners
+                          side: const BorderSide(
+                              color: Colors.brown), // Border color
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 20, vertical: 15), // Button padding
+                      ),
+                      child: const Text(
+                        'Add Transaction',
+                        style: TextStyle(
+                            fontSize: 16), // Customize the font size if needed
+                      ),
+                    ),
+                  ]),
                 ],
               ),
             ),
@@ -187,5 +237,38 @@ class _AddExpensesPage extends State<AddTransactionPage> {
         ),
       ),
     );
+  }
+
+  // Method to take a photo
+  Future<void> _takePhoto() async {
+    final XFile? photo = await _picker.pickImage(source: ImageSource.camera);
+    if (photo != null) {
+      final savedImage = await _saveImageToLocalDirectory(photo);
+      attachmentUrl = savedImage.path.toString();
+      setState(() {
+        _imageFile = savedImage;
+      });
+    }
+  }
+
+  // Method to save the image to a local directory
+  Future<File> _saveImageToLocalDirectory(XFile image) async {
+    final directory = await getApplicationDocumentsDirectory();
+    final String path = directory.path;
+    final String fileName = basename(image.path);
+    final File localImage = await File(image.path).copy('$path/$fileName');
+    return localImage;
+  }
+
+  // Method to reload the saved image (if it exists)
+  Future<void> _loadSavedImage() async {
+    final directory = await getApplicationDocumentsDirectory();
+    final String path = directory.path;
+    final File savedImage = File('$path/saved_image.jpg');
+    if (await savedImage.exists()) {
+      setState(() {
+        _imageFile = savedImage;
+      });
+    }
   }
 }

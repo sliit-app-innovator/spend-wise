@@ -5,18 +5,19 @@ class TransactionDto {
   final String source;
   final String description;
   final double amount;
-  final String attachmentUrl;
+  String? attachmentUrl;
   final String txnTime;
 
-  TransactionDto(
-      {this.id,
-      required this.userId,
-      required this.type,
-      required this.source,
-      required this.description,
-      required this.amount,
-      required this.attachmentUrl,
-      required this.txnTime});
+  TransactionDto({
+    this.id,
+    required this.userId,
+    required this.type,
+    required this.source,
+    required this.description,
+    required this.amount,
+    required this.attachmentUrl,
+    required this.txnTime,
+  });
 
   // Converts User object to a map to store in Firestore
   Map<String, dynamic> toJson() {

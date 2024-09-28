@@ -51,7 +51,6 @@ class TransactionRepository {
 
   // Insert a new transaction
   Future<int> insertTransaction(TransactionDto transaction) async {
-    print(transaction.amount);
     Database db = await database;
     return await db.insert('transactions', transaction.toJsonSQL(),
         conflictAlgorithm: ConflictAlgorithm.replace);
