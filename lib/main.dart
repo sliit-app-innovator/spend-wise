@@ -1,9 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:spend_wise/container_page.dart';
+import 'package:spend_wise/model/transaction_repository.dart';
+import 'package:spend_wise/model/user_configs_repository.dart';
+import 'package:spend_wise/model/user_repository.dart';
+import 'package:spend_wise/pages/signup_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  UserRepository userRepository = UserRepository();
+  // TransactionRepository transactionRepository = TransactionRepository();
+  // UserConfigsRepository userConfigsRepository = UserConfigsRepository();
+  await userRepository.database;
+//  await transactionRepository.database;
+  // await userConfigsRepository.database;
   await Firebase.initializeApp();
   runApp(Login());
 }
@@ -29,15 +39,33 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   final _formKey = GlobalKey<FormState>();
-  //final _formKey = GlobalKey<FormState>();
-  String email = '';
+  bool _isPasswordHidden = true;
+  final TextEditingController _userIdController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final UserRepository _userRepository = UserRepository();
+  String userId = '';
   String password = '';
 
-  void _login() {
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => MyApp()),
-    );
+  void _login() async {
+    if (_formKey.currentState!.validate()) {
+      userId = _userIdController.text;
+      password = _passwordController.text;
+
+      try {
+        await _userRepository.login(userId, password);
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => MyApp()),
+        );
+      } catch (e) {
+        if (e.toString().contains('User not found')) {
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+              content: Text('Invalid Login. Please try agian'),
+              backgroundColor: Color.fromARGB(255, 204, 117, 3),
+              duration: Duration(seconds: 3)));
+        }
+      }
+    }
   }
 
   @override
@@ -60,7 +88,7 @@ class _LoginPageState extends State<LoginPage> {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text(
+                      const Text(
                         'Spend Wise',
                         style: TextStyle(
                           fontSize: 30,
@@ -70,14 +98,16 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                       SizedBox(height: 30),
                       TextFormField(
+                        controller: _userIdController,
                         decoration: InputDecoration(
-                          labelText: 'Email',
+                          labelText: 'Username/Email',
                           labelStyle: TextStyle(color: Colors.brown),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(10),
                             borderSide: BorderSide(color: Colors.brown),
                           ),
-                          prefixIcon: Icon(Icons.email, color: Colors.brown),
+                          prefixIcon:
+                              Icon(Icons.perm_identity, color: Colors.brown),
                         ),
                         keyboardType: TextInputType.emailAddress,
                         validator: (value) {
@@ -87,21 +117,34 @@ class _LoginPageState extends State<LoginPage> {
                           return null;
                         },
                         onSaved: (value) {
-                          email = value!;
+                          userId = value!;
                         },
                       ),
                       SizedBox(height: 20),
                       TextFormField(
+                        controller: _passwordController,
                         decoration: InputDecoration(
-                          labelText: 'Password',
-                          labelStyle: TextStyle(color: Colors.brown),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10),
-                            borderSide: BorderSide(color: Colors.brown),
-                          ),
-                          prefixIcon: Icon(Icons.lock, color: Colors.brown),
-                        ),
-                        obscureText: true,
+                            labelText: 'Password',
+                            labelStyle: TextStyle(color: Colors.brown),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                              borderSide: BorderSide(color: Colors.brown),
+                            ),
+                            prefixIcon: Icon(Icons.lock, color: Colors.brown),
+                            suffixIcon: IconButton(
+                              icon: Icon(
+                                _isPasswordHidden
+                                    ? Icons.visibility_off
+                                    : Icons.visibility,
+                                color: Colors.brown,
+                              ),
+                              onPressed: () {
+                                setState(() {
+                                  _isPasswordHidden = !_isPasswordHidden;
+                                });
+                              },
+                            )),
+                        obscureText: _isPasswordHidden,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'Please enter your password';
@@ -140,18 +183,27 @@ class _LoginPageState extends State<LoginPage> {
                         children: [
                           TextButton(
                             onPressed: () {
-                              // Navigate to forgot password screen
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => SignupPage()),
+                              );
                             },
-                            child: Text(
+                            child: const Text(
                               'Sign up',
                               style: TextStyle(color: Colors.brown),
                             ),
                           ),
                           TextButton(
                             onPressed: () {
-                              // Navigate to forgot password screen
+                              print("Add transaction page naviation");
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => SignupPage()),
+                              );
                             },
-                            child: Text(
+                            child: const Text(
                               'Forgot Password?',
                               style: TextStyle(color: Colors.brown),
                             ),
