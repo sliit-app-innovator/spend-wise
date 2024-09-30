@@ -1,19 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:spend_wise/main.dart';
 import 'package:spend_wise/utils/colors.dart';
-import 'pages/add_transaction_page.dart';
-import 'pages/modify_transaction_page.dart';
 import 'pages/home_page.dart';
-import 'pages/notifications_page.dart';
-import 'pages/profile.dart';
-import 'pages/settings.dart';
 import 'pages/transaction_history_page.dart';
 import 'pages/transactions_page.dart';
-import 'pages/transaction_page.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:firebase_core/firebase_core.dart';
 
 /*void main() async {
   WidgetsFlutterBinding.ensureInitialized();

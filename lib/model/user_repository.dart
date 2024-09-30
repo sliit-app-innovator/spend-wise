@@ -33,7 +33,7 @@ class UserRepository {
 
   // Create the table
   Future _onCreate(Database db, int version) async {
-    print("CREATING user TABLE.......................!");
+    print("CREATING user 3 TABLEs.......................!");
     await db.execute('''
       CREATE TABLE user (
         id INTEGER PRIMARY KEY AUTOINCREMENT,

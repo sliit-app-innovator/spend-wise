@@ -1,19 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:spend_wise/container_page.dart';
-import 'package:spend_wise/model/transaction_repository.dart';
-import 'package:spend_wise/model/user_configs_repository.dart';
 import 'package:spend_wise/model/user_repository.dart';
 import 'package:spend_wise/pages/signup_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   UserRepository userRepository = UserRepository();
-  // TransactionRepository transactionRepository = TransactionRepository();
-  // UserConfigsRepository userConfigsRepository = UserConfigsRepository();
   await userRepository.database;
-//  await transactionRepository.database;
-  // await userConfigsRepository.database;
   await Firebase.initializeApp();
   runApp(Login());
 }
@@ -96,7 +90,7 @@ class _LoginPageState extends State<LoginPage> {
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      SizedBox(height: 30),
+                      const SizedBox(height: 30),
                       TextFormField(
                         controller: _userIdController,
                         decoration: InputDecoration(
@@ -120,7 +114,7 @@ class _LoginPageState extends State<LoginPage> {
                           userId = value!;
                         },
                       ),
-                      SizedBox(height: 20),
+                      const SizedBox(height: 20),
                       TextFormField(
                         controller: _passwordController,
                         decoration: InputDecoration(
@@ -155,7 +149,7 @@ class _LoginPageState extends State<LoginPage> {
                           password = value!;
                         },
                       ),
-                      SizedBox(height: 30),
+                      const SizedBox(height: 30),
                       ElevatedButton(
                         onPressed: () {
                           _login();
@@ -163,13 +157,13 @@ class _LoginPageState extends State<LoginPage> {
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.brown,
                           foregroundColor: Colors.white,
-                          padding: EdgeInsets.symmetric(
+                          padding: const EdgeInsets.symmetric(
                               horizontal: 40, vertical: 15),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10),
                           ),
                         ),
-                        child: Text(
+                        child: const Text(
                           'Login',
                           style: TextStyle(
                             fontSize: 18,

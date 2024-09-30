@@ -66,8 +66,8 @@ class TransactionRepository {
     Database db = await database;
     //db.delete('transactions');
     List<Map<String, dynamic>> result = await db.query('transactions',
-        where: 'txnTime >= ? AND txnTime <= ?',
-        whereArgs: [startOfMonth, endOfMonth],
+        // where: 'txnTime >= ? AND txnTime <= ?',
+        //  whereArgs: [startOfMonth, endOfMonth],
         orderBy: 'txnTime DESC',
         limit: 10);
     return result.map((map) => TransactionDto.fromJson(map)).toList();
@@ -91,8 +91,8 @@ class TransactionRepository {
     return Stream.fromFuture(() async {
       Database db = await database;
       List<Map<String, dynamic>> result = await db.query('transactions',
-          where: 'txnTime >= ? AND txnTime <= ?',
-          whereArgs: [startOfMonth, endOfMonth],
+          //  where: 'txnTime >= ? AND txnTime <= ?',
+          //   whereArgs: [startOfMonth, endOfMonth],
           orderBy: 'txnTime DESC',
           limit: 1000);
       return result.map((map) => TransactionDto.fromJson(map)).toList();
