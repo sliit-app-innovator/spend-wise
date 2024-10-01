@@ -1,229 +1,223 @@
 import 'package:flutter/material.dart';
-import 'package:spend_wise/utils/colors.dart';
-import 'pages/add_transaction_page.dart';
-import 'pages/modify_transaction_page.dart';
-import 'pages/home_page.dart';
-import 'pages/notifications_page.dart';
-import 'pages/profile.dart';
-import 'pages/settings.dart';
-import 'pages/transaction_history_page.dart';
-import 'pages/transactions_page.dart';
-import 'pages/transaction_page.dart';
-import 'package:image_picker/image_picker.dart';
-import 'dart:io';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:spend_wise/container_page.dart';
+import 'package:spend_wise/model/user_repository.dart';
+import 'package:spend_wise/pages/signup_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  UserRepository userRepository = UserRepository();
+  await userRepository.database;
   await Firebase.initializeApp();
-  runApp(MyApp());
+  runApp(Login());
 }
 
-class MyApp extends StatefulWidget {
-  const MyApp({super.key});
-
-  @override
-  _MyAppState createState() => _MyAppState();
-}
-
-class _MyAppState extends State<MyApp> {
-  File? _imageFile;
-  final ImagePicker _picker = ImagePicker();
-  int _selectedIndex = 0;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadProfileImage();
-  }
-
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-      HomePage();
-    });
-  }
-
-  // Method to pick image from gallery
-  Future<void> _pickImage() async {
-    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
-    if (pickedFile != null) {
-      setState(() {
-        _imageFile = File(pickedFile.path);
-      });
-      _saveProfileImage(pickedFile.path);
-    }
-  }
-
-  // Save the image path to shared preferences
-  Future<void> _saveProfileImage(String imagePath) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setString('profile_image', imagePath);
-  }
-
-  // Load the image path from shared preferences
-  Future<void> _loadProfileImage() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? imagePath = prefs.getString('profile_image');
-    if (imagePath != null) {
-      setState(() {
-        _imageFile = File(imagePath);
-      });
-    }
-  }
-
-  static List<Widget> pages = <Widget>[
-    HomePage(),
-    TransactionsPage(),
-    TransactionHistoryPage(),
-  ];
-
+class Login extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      title: 'Login Page',
       debugShowCheckedModeBanner: false,
-      home: Scaffold(
-        appBar: AppBar(
-          title: const Text('Spend Wise'),
-          backgroundColor: AppColors.APP_ABR_COLOR,
-          foregroundColor: Colors.white,
-          actions: [
-            IconButton(
-              onPressed: () {},
-              icon: const Icon(Icons.notifications, color: Colors.black),
-            ),
-          ],
-        ),
-        drawer: getLeftMenu(context, _imageFile),
-        body: pages[
-            _selectedIndex], // Your selected page// Show the FAB only on the HomePage
-        bottomNavigationBar: BottomNavigationBar(
-          currentIndex: _selectedIndex,
-          onTap: _onItemTapped,
-          items: const <BottomNavigationBarItem>[
-            BottomNavigationBarItem(
-              icon: Icon(Icons.home),
-              label: 'Home',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.list_alt_outlined),
-              label: 'Transactions',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.history),
-              label: 'History',
-            ),
-          ],
-        ),
+      theme: ThemeData(
+        primarySwatch: Colors.brown,
       ),
-      routes: <String, WidgetBuilder>{
-        '/home_page': (context) => HomePage(),
-        '/transactions_page': (context) => const TransactionsPage(),
-        '/transaction_page': (context) => const TransactionPage(),
-        '/add_tranaction': (context) => const AddTransactionPage(),
-        '/modify_tranaction': (context) => const ModifyTransactionPage(),
-        '/profile_page': (context) => const ProfilePage(),
-        '/settings_page': (context) => const SettingsPage(),
-        '/notification_page': (context) => const NotificationsPage(),
-      },
+      home: LoginPage(),
     );
   }
+}
 
-  Drawer getLeftMenu(BuildContext context, File? imageFile) {
-    return Drawer(
-      child: ListView(
-        padding: EdgeInsets.zero,
-        children: <Widget>[
-          DrawerHeader(
-            decoration: const BoxDecoration(
-              color: Colors.deepPurple,
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    CircleAvatar(
-                      radius: 40,
-                      backgroundImage: imageFile != null
-                          ? FileImage(imageFile)
-                          : const AssetImage('assets/avatar.png')
-                              as ImageProvider,
+class LoginPage extends StatefulWidget {
+  @override
+  _LoginPageState createState() => _LoginPageState();
+}
+
+class _LoginPageState extends State<LoginPage> {
+  final _formKey = GlobalKey<FormState>();
+  bool _isPasswordHidden = true;
+  final TextEditingController _userIdController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final UserRepository _userRepository = UserRepository();
+  String userId = '';
+  String password = '';
+
+  void _login() async {
+    if (_formKey.currentState!.validate()) {
+      userId = _userIdController.text;
+      password = _passwordController.text;
+
+      try {
+        await _userRepository.login(userId, password);
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => MyApp()),
+        );
+      } catch (e) {
+        if (e.toString().contains('User not found')) {
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+              content: Text('Invalid Login. Please try agian'),
+              backgroundColor: Color.fromARGB(255, 204, 117, 3),
+              duration: Duration(seconds: 3)));
+        }
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+        onTap: () {
+          FocusScope.of(context)
+              .unfocus(); // Dismiss the keyboard when tapping outside
+        },
+        child: Scaffold(
+          backgroundColor: const Color.fromARGB(255, 172, 109, 78),
+          body: Center(
+            child: SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Card(
+                  elevation: 5,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(30.0),
+                    child: Form(
+                      key: _formKey,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Text(
+                            'Spend Wise',
+                            style: TextStyle(
+                              fontSize: 30,
+                              color: Colors.brown,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 30),
+                          TextFormField(
+                            controller: _userIdController,
+                            decoration: InputDecoration(
+                              labelText: 'Username/Email',
+                              labelStyle: TextStyle(color: Colors.brown),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                                borderSide: BorderSide(color: Colors.brown),
+                              ),
+                              prefixIcon:
+                                  Icon(Icons.person, color: Colors.brown),
+                            ),
+                            keyboardType: TextInputType.emailAddress,
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Please enter your email';
+                              }
+                              return null;
+                            },
+                            onSaved: (value) {
+                              userId = value!;
+                            },
+                          ),
+                          const SizedBox(height: 20),
+                          TextFormField(
+                            controller: _passwordController,
+                            decoration: InputDecoration(
+                                labelText: 'Password',
+                                labelStyle: TextStyle(color: Colors.brown),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                  borderSide: BorderSide(color: Colors.brown),
+                                ),
+                                prefixIcon:
+                                    Icon(Icons.lock, color: Colors.brown),
+                                suffixIcon: IconButton(
+                                  icon: Icon(
+                                    _isPasswordHidden
+                                        ? Icons.visibility_off
+                                        : Icons.visibility,
+                                    color: Colors.brown,
+                                  ),
+                                  onPressed: () {
+                                    setState(() {
+                                      _isPasswordHidden = !_isPasswordHidden;
+                                    });
+                                  },
+                                )),
+                            obscureText: _isPasswordHidden,
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Please enter your password';
+                              }
+                              return null;
+                            },
+                            onSaved: (value) {
+                              password = value!;
+                            },
+                          ),
+                          const SizedBox(height: 30),
+                          ElevatedButton(
+                            onPressed: () {
+                              _login();
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.brown,
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 40, vertical: 15),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                            ),
+                            child: const Text(
+                              'Login',
+                              style: TextStyle(
+                                fontSize: 18,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                          SizedBox(height: 20),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => SignupPage()),
+                                  );
+                                },
+                                child: const Text(
+                                  'Sign up',
+                                  style: TextStyle(color: Colors.brown),
+                                ),
+                              ),
+                              TextButton(
+                                onPressed: () {
+                                  print("Add transaction page naviation");
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => SignupPage()),
+                                  );
+                                },
+                                child: const Text(
+                                  'Forgot Password?',
+                                  style: TextStyle(color: Colors.brown),
+                                ),
+                              )
+                            ],
+                          )
+                        ],
+                      ),
                     ),
-                    IconButton(
-                      icon: const Icon(Icons.camera_alt),
-                      onPressed: _pickImage, // Trigger image selection
-                    )
-                  ],
-                ),
-                const SizedBox(height: 10),
-                const Text(
-                  'Damith Sulochana',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 20,
                   ),
                 ),
-              ],
+              ),
             ),
           ),
-          ListTile(
-            leading: const Icon(Icons.home),
-            title: const Text('Home'),
-            onTap: () {
-              setState(() {
-                _selectedIndex = 0;
-              });
-              // Navigator.pop(context); // Close the drawer
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.person),
-            title: const Text('Profile'),
-            onTap: () {
-              // Handle profile navigation
-              //Navigator.pop(context);
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.credit_card),
-            title: const Text('Payments'),
-            onTap: () {
-              setState(() {
-                _selectedIndex = 1;
-              });
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.history),
-            title: const Text('Transaction History'),
-            onTap: () {
-              setState(() {
-                _selectedIndex = 2;
-              });
-              // Navigator.pop(context);
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.settings),
-            title: const Text('Settings'),
-            onTap: () {
-              // Handle settings navigation
-              //  Navigator.pop(context);
-            },
-          ),
-          const Divider(),
-          ListTile(
-            leading: const Icon(Icons.logout),
-            title: const Text('Logout'),
-            onTap: () {
-              // Handle logout
-              //   Navigator.pop(context);
-            },
-          ),
-        ],
-      ),
-    );
+        ));
   }
 }

@@ -28,13 +28,14 @@ class TransactionRepository {
     String path = join(await getDatabasesPath(), 'transactions.db');
     return await openDatabase(
       path,
-      version: 1,
+      version: 5,
       onCreate: _onCreate,
     );
   }
 
   // Create the table
   Future _onCreate(Database db, int version) async {
+    print("CREATING transactions TABLE.......................!");
     await db.execute('''
       CREATE TABLE transactions(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -51,7 +52,6 @@ class TransactionRepository {
 
   // Insert a new transaction
   Future<int> insertTransaction(TransactionDto transaction) async {
-    print(transaction.amount);
     Database db = await database;
     return await db.insert('transactions', transaction.toJsonSQL(),
         conflictAlgorithm: ConflictAlgorithm.replace);
@@ -66,8 +66,8 @@ class TransactionRepository {
     Database db = await database;
     //db.delete('transactions');
     List<Map<String, dynamic>> result = await db.query('transactions',
-        where: 'txnTime >= ? AND txnTime <= ?',
-        whereArgs: [startOfMonth, endOfMonth],
+        // where: 'txnTime >= ? AND txnTime <= ?',
+        //  whereArgs: [startOfMonth, endOfMonth],
         orderBy: 'txnTime DESC',
         limit: 10);
     return result.map((map) => TransactionDto.fromJson(map)).toList();
@@ -91,8 +91,8 @@ class TransactionRepository {
     return Stream.fromFuture(() async {
       Database db = await database;
       List<Map<String, dynamic>> result = await db.query('transactions',
-          where: 'txnTime >= ? AND txnTime <= ?',
-          whereArgs: [startOfMonth, endOfMonth],
+          //  where: 'txnTime >= ? AND txnTime <= ?',
+          //   whereArgs: [startOfMonth, endOfMonth],
           orderBy: 'txnTime DESC',
           limit: 1000);
       return result.map((map) => TransactionDto.fromJson(map)).toList();

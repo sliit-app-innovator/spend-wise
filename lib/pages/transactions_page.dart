@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:spend_wise/main.dart';
+import 'package:spend_wise/container_page.dart';
 import 'package:spend_wise/pages/add_transaction_page.dart';
 import 'package:spend_wise/dto/transaction.dart';
 import 'package:spend_wise/pages/home_page.dart';
 import 'package:spend_wise/pages/transaction_page.dart';
 import 'package:spend_wise/model/transaction_repository.dart';
 import 'package:spend_wise/utils/colors.dart';
+import 'dart:io';
 
 class TransactionsPage extends StatefulWidget {
   const TransactionsPage({super.key});
@@ -16,7 +17,7 @@ class TransactionsPage extends StatefulWidget {
 
 class _PaymentsPageState extends State<TransactionsPage> {
   List<Widget> recentTxns = [];
-
+  File? _imageFile;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -48,6 +49,7 @@ class _PaymentsPageState extends State<TransactionsPage> {
                     tx.txnTime,
                     tx.amount,
                     'LKR',
+                    tx.attachmentUrl,
                     (tx.type == 'Income'
                         ? 'assets/images/income.png'
                         : 'assets/images/expense.png'),
@@ -70,9 +72,7 @@ class _PaymentsPageState extends State<TransactionsPage> {
                   // Transactions
                   Container(
                     width: double.infinity,
-                    padding:
-                        EdgeInsets.all(16.0), // Add padding around the text
-                    //  color: Color(0xFFD6C4A8), // Light brown color
+                    padding: EdgeInsets.all(16.0),
                     decoration: BoxDecoration(
                       color: const Color.fromARGB(255, 240, 215, 206),
                       borderRadius: BorderRadius.circular(15),
@@ -114,6 +114,7 @@ class _PaymentsPageState extends State<TransactionsPage> {
       String datetime,
       double amount,
       String currency,
+      String? attchementUrl,
       iconPath,
       Icon viewIcon) {
     return Padding(
@@ -152,6 +153,7 @@ class _PaymentsPageState extends State<TransactionsPage> {
           IconButton(
             icon: viewIcon,
             onPressed: () {
+              _loadSavedImage(attchementUrl);
               showDialog(
                 context: context,
                 builder: (BuildContext context) {
@@ -178,22 +180,38 @@ class _PaymentsPageState extends State<TransactionsPage> {
                         ],
                       ),
                     ),
-                    content: Text(
-                      'Type : $type\n\nDate : $datetime\n\nNote : $note',
-                      style: TextStyle(
-                        color: Colors.grey[700], // Message text color
-                        fontSize: 16,
+                    content: SingleChildScrollView(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Amount : $amount\n\nType : $type\n\nDate : $datetime\n\nNote : $note\n',
+                            style: TextStyle(
+                              color: Colors.grey[700],
+                              fontSize: 16,
+                            ),
+                          ),
+                          SizedBox(
+                            width: 200,
+                            height: 200,
+                            child: _imageFile != null
+                                ? Image.file(
+                                    _imageFile!,
+                                    fit: BoxFit.cover,
+                                  )
+                                : const Center(child: Text('No image')),
+                          )
+                        ],
                       ),
                     ),
                     actions: [
                       TextButton(
                         onPressed: () {
-                          Navigator.of(context).pop(); // Close the dialog
+                          Navigator.of(context).pop();
                         },
                         child: const Text(
                           'OK',
-                          style: TextStyle(
-                              color: Colors.brown), // Button text color
+                          style: TextStyle(color: Colors.brown),
                         ),
                       ),
                     ],
@@ -210,12 +228,10 @@ class _PaymentsPageState extends State<TransactionsPage> {
                 context: context,
                 builder: (BuildContext context) {
                   return AlertDialog(
-                    titlePadding:
-                        EdgeInsets.zero, // Remove default padding for the title
+                    titlePadding: EdgeInsets.zero,
                     title: Container(
-                      color: Colors.brown, // Title bar background color
-                      padding: const EdgeInsets.all(
-                          16), // Padding for the title text
+                      color: Colors.brown,
+                      padding: const EdgeInsets.all(16),
                       child: const Row(
                         children: [
                           Icon(Icons.warning_amber_rounded,
@@ -225,7 +241,7 @@ class _PaymentsPageState extends State<TransactionsPage> {
                             child: Text(
                               'Confirm Delete',
                               style: TextStyle(
-                                color: Colors.white, // Title text color
+                                color: Colors.white,
                                 fontSize: 20,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -279,5 +295,15 @@ class _PaymentsPageState extends State<TransactionsPage> {
         ],
       ),
     );
+  }
+
+  void _loadSavedImage(String? attachemtUrl) async {
+    final String path = attachemtUrl.toString();
+    final File savedImage = File('$path');
+    if (await savedImage.exists()) {
+      setState(() {
+        _imageFile = savedImage;
+      });
+    }
   }
 }
