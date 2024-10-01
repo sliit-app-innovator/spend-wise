@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:spend_wise/main.dart';
+import 'package:spend_wise/pages/settings.dart';
 import 'package:spend_wise/utils/colors.dart';
 import 'pages/home_page.dart';
 import 'pages/transaction_history_page.dart';
@@ -126,19 +127,23 @@ class _MyAppState extends State<MyApp> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
+                Stack(
                   children: [
                     CircleAvatar(
                       radius: 40,
                       backgroundImage: imageFile != null
                           ? FileImage(imageFile)
-                          : const AssetImage('assets/avatar.png')
+                          : const AssetImage('assets/images/aviator.webp')
                               as ImageProvider,
                     ),
-                    IconButton(
-                      icon: const Icon(Icons.camera_alt),
-                      onPressed: _pickImage, // Trigger image selection
-                    )
+                    Positioned(
+                      bottom: 0,
+                      right: 0,
+                      child: IconButton(
+                        icon: const Icon(Icons.edit),
+                        onPressed: _pickImage, // Trigger image selection
+                      ),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 10),
@@ -156,6 +161,7 @@ class _MyAppState extends State<MyApp> {
             leading: const Icon(Icons.home),
             title: const Text('Home'),
             onTap: () {
+              Navigator.pop(context);
               setState(() {
                 _selectedIndex = 0;
               });
@@ -174,6 +180,7 @@ class _MyAppState extends State<MyApp> {
             leading: const Icon(Icons.credit_card),
             title: const Text('Payments'),
             onTap: () {
+              Navigator.pop(context);
               setState(() {
                 _selectedIndex = 1;
               });
@@ -183,6 +190,7 @@ class _MyAppState extends State<MyApp> {
             leading: const Icon(Icons.history),
             title: const Text('Transaction History'),
             onTap: () {
+              Navigator.pop(context);
               setState(() {
                 _selectedIndex = 2;
               });
@@ -193,8 +201,11 @@ class _MyAppState extends State<MyApp> {
             leading: const Icon(Icons.settings),
             title: const Text('Settings'),
             onTap: () {
-              // Handle settings navigation
-              //  Navigator.pop(context);
+              Navigator.pop(context);
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => UserSettingsPage()),
+              );
             },
           ),
           const Divider(),

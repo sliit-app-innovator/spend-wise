@@ -90,156 +90,169 @@ class _AddExpensesPage extends State<AddTransactionPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('New Transaction'),
-        backgroundColor: Colors.brown[400],
-        foregroundColor: Colors.white,
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            Form(
-              key: _formKey,
-              child: Column(
-                children: [
-                  // Dropdown for Income/Expense selection
-                  DropdownButtonFormField<String>(
-                    value: _selectedType,
-                    onChanged: (String? newValue) {
-                      setState(() {
-                        _selectedType = newValue!;
-                        if (_selectedType == 'Income') {
-                          _selectedSourceTypes = incomeSourceType;
-                          _selectedSourceType = 'Salary';
-                        } else {
-                          _selectedSourceTypes = expenseSourceType;
-                          _selectedSourceType = 'Food & Groceries';
-                        }
-                      });
-                    },
-                    items: ['Select', 'Income', 'Expense'].map((String type) {
-                      return DropdownMenuItem<String>(
-                        value: type,
-                        child: Text(type),
-                      );
-                    }).toList(),
-                    decoration:
-                        const InputDecoration(labelText: 'Transaction Type'),
-                    validator: (value) {
-                      if (value == null || value.isEmpty || value == 'Select') {
-                        return 'Please select  transaction source';
-                      }
-                      return null;
-                    },
-                  ),
-                  DropdownButtonFormField<String>(
-                    value: _selectedSourceType,
-                    onChanged: (String? newSourceValue) {
-                      setState(() {
-                        _selectedSourceType = newSourceValue!;
-                      });
-                    },
-                    items: _selectedSourceTypes.map((String type) {
-                      return DropdownMenuItem<String>(
-                        value: type,
-                        child: Text(type),
-                      );
-                    }).toList(),
-                    decoration: InputDecoration(labelText: 'Source Type'),
-                    validator: (value) {
-                      if (value == null || value.isEmpty || value == 'Select') {
-                        return 'Please select  transaction source';
-                      }
-                      return null;
-                    },
-                  ),
-                  TextFormField(
-                    controller: _descriptionController,
-                    decoration: const InputDecoration(labelText: 'Description'),
-                    onSaved: (value) {
-                      _description = value!;
-                    },
-                  ),
-                  TextFormField(
-                    controller: _amountController,
-                    decoration: const InputDecoration(labelText: 'Amount'),
-                    keyboardType: TextInputType.number,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter an amount';
-                      }
-                      if (double.tryParse(value) == null) {
-                        return 'Please enter a valid number';
-                      }
-                      return null;
-                    },
-                    onSaved: (value) {
-                      _amount = double.parse(value!);
-                    },
-                  ),
-                  const SizedBox(height: 20),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
+    return GestureDetector(
+        onTap: () {
+          FocusScope.of(context)
+              .unfocus(); // Dismiss the keyboard when tapping outside
+        },
+        child: Scaffold(
+          appBar: AppBar(
+            title: Text('New Transaction'),
+            backgroundColor: Colors.brown[400],
+            foregroundColor: Colors.white,
+          ),
+          body: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              children: [
+                Form(
+                  key: _formKey,
+                  child: Column(
                     children: [
-                      ElevatedButton(
-                        onPressed: _takePhoto,
-                        child: const Text('Take Photo'),
+                      // Dropdown for Income/Expense selection
+                      DropdownButtonFormField<String>(
+                        value: _selectedType,
+                        onChanged: (String? newValue) {
+                          setState(() {
+                            _selectedType = newValue!;
+                            if (_selectedType == 'Income') {
+                              _selectedSourceTypes = incomeSourceType;
+                              _selectedSourceType = 'Salary';
+                            } else {
+                              _selectedSourceTypes = expenseSourceType;
+                              _selectedSourceType = 'Food & Groceries';
+                            }
+                          });
+                        },
+                        items:
+                            ['Select', 'Income', 'Expense'].map((String type) {
+                          return DropdownMenuItem<String>(
+                            value: type,
+                            child: Text(type),
+                          );
+                        }).toList(),
+                        decoration: const InputDecoration(
+                            labelText: 'Transaction Type'),
+                        validator: (value) {
+                          if (value == null ||
+                              value.isEmpty ||
+                              value == 'Select') {
+                            return 'Please select  transaction source';
+                          }
+                          return null;
+                        },
                       ),
-                      const SizedBox(width: 20),
-                      _imageFile != null
-                          ? SizedBox(
-                              width: 40,
-                              height: 40,
-                              child: Image.file(_imageFile!, fit: BoxFit.cover),
-                            )
-                          : const Text('Add an attachment (optional)'),
+                      DropdownButtonFormField<String>(
+                        value: _selectedSourceType,
+                        onChanged: (String? newSourceValue) {
+                          setState(() {
+                            _selectedSourceType = newSourceValue!;
+                          });
+                        },
+                        items: _selectedSourceTypes.map((String type) {
+                          return DropdownMenuItem<String>(
+                            value: type,
+                            child: Text(type),
+                          );
+                        }).toList(),
+                        decoration: InputDecoration(labelText: 'Source Type'),
+                        validator: (value) {
+                          if (value == null ||
+                              value.isEmpty ||
+                              value == 'Select') {
+                            return 'Please select  transaction source';
+                          }
+                          return null;
+                        },
+                      ),
+                      TextFormField(
+                        controller: _descriptionController,
+                        decoration:
+                            const InputDecoration(labelText: 'Description'),
+                        onSaved: (value) {
+                          _description = value!;
+                        },
+                      ),
+                      TextFormField(
+                        controller: _amountController,
+                        decoration: const InputDecoration(labelText: 'Amount'),
+                        keyboardType: TextInputType.number,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter an amount';
+                          }
+                          if (double.tryParse(value) == null) {
+                            return 'Please enter a valid number';
+                          }
+                          return null;
+                        },
+                        onSaved: (value) {
+                          _amount = double.parse(value!);
+                        },
+                      ),
+                      const SizedBox(height: 20),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          ElevatedButton(
+                            onPressed: _takePhoto,
+                            child: const Text('Take Photo'),
+                          ),
+                          const SizedBox(width: 20),
+                          _imageFile != null
+                              ? SizedBox(
+                                  width: 40,
+                                  height: 40,
+                                  child: Image.file(_imageFile!,
+                                      fit: BoxFit.cover),
+                                )
+                              : const Text('Add an attachment (optional)'),
+                        ],
+                      ),
+                      Row(mainAxisAlignment: MainAxisAlignment.end, children: [
+                        ElevatedButton(
+                          onPressed: _addTransaction,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.brown,
+                            foregroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius:
+                                  BorderRadius.circular(8.0), // Rounded corners
+                              side: const BorderSide(
+                                  color: Colors.brown), // Border color
+                            ),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 20, vertical: 15), // Button padding
+                          ),
+                          child: const Text(
+                            'Add Transaction',
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontSize:
+                                    16), // Customize the font size if needed
+                          ),
+                        ),
+                      ]),
                     ],
                   ),
-                  Row(mainAxisAlignment: MainAxisAlignment.end, children: [
-                    ElevatedButton(
-                      onPressed: _addTransaction,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.brown,
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius:
-                              BorderRadius.circular(8.0), // Rounded corners
-                          side: const BorderSide(
-                              color: Colors.brown), // Border color
-                        ),
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 20, vertical: 15), // Button padding
-                      ),
-                      child: const Text(
-                        'Add Transaction',
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 16), // Customize the font size if needed
-                      ),
-                    ),
-                  ]),
-                ],
-              ),
+                ),
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: _transactions.length,
+                    itemBuilder: (ctx, index) {
+                      return ListTile(
+                        title: Text(_transactions[index].source),
+                        subtitle: Text(_transactions[index].type),
+                        trailing: Text(
+                            'LKR ${_transactions[index].amount.toStringAsFixed(2)}'),
+                      );
+                    },
+                  ),
+                ),
+              ],
             ),
-            Expanded(
-              child: ListView.builder(
-                itemCount: _transactions.length,
-                itemBuilder: (ctx, index) {
-                  return ListTile(
-                    title: Text(_transactions[index].source),
-                    subtitle: Text(_transactions[index].type),
-                    trailing: Text(
-                        'LKR ${_transactions[index].amount.toStringAsFixed(2)}'),
-                  );
-                },
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
+          ),
+        ));
   }
 
   // Method to take a photo
