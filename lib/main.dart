@@ -3,13 +3,20 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:spend_wise/container_page.dart';
 import 'package:spend_wise/model/user_repository.dart';
 import 'package:spend_wise/pages/signup_page.dart';
+import 'package:workmanager/workmanager.dart';
+import 'package:spend_wise/background/flutter_sync.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
   UserRepository userRepository = UserRepository();
   await userRepository.database;
   await Firebase.initializeApp();
+  Workmanager().initialize(callbackDispatcher, isInDebugMode: true);
+  Workmanager().registerPeriodicTask(
+    "1", // Unique task name
+    "backupTask", // Task name
+    frequency: const Duration(minutes: 15), // Frequency of the backup
+  );
   runApp(Login());
 }
 
