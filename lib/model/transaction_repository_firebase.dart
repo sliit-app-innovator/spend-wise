@@ -1,7 +1,7 @@
 import 'package:spend_wise/dto/transaction.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class TransactionRepository {}
+class FirebaseRepository {}
 
 Future<void> saveTransaction(TransactionDto transaction) async {
   CollectionReference transactions =

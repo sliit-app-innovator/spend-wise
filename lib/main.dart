@@ -6,6 +6,7 @@ import 'package:spend_wise/pages/signup_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
   UserRepository userRepository = UserRepository();
   await userRepository.database;
   await Firebase.initializeApp();
