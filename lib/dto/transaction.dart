@@ -7,6 +7,8 @@ class TransactionDto {
   final double amount;
   String? attachmentUrl;
   final String txnTime;
+  final bool isDeleted;
+  final bool isSynced;
 
   TransactionDto({
     this.id,
@@ -17,6 +19,8 @@ class TransactionDto {
     required this.amount,
     required this.attachmentUrl,
     required this.txnTime,
+    required this.isDeleted,
+    required this.isSynced,
   });
 
   // Converts User object to a map to store in Firestore
@@ -29,7 +33,9 @@ class TransactionDto {
       'description': description,
       'amount': amount,
       'attachmentUrl': attachmentUrl,
-      'txnTime': txnTime
+      'txnTime': txnTime,
+      'isDeleted': isDeleted ? 1 : 0,
+      'isSynced': isSynced ? 1 : 0,
     };
   }
 
@@ -42,7 +48,9 @@ class TransactionDto {
       'description': description,
       'amount': amount,
       'attachmentUrl': attachmentUrl,
-      'txnTime': txnTime
+      'txnTime': txnTime,
+      'isDeleted': isDeleted ? 1 : 0,
+      'isSynced': isSynced ? 1 : 0,
     };
   }
 
@@ -55,6 +63,8 @@ class TransactionDto {
         description: json['description'],
         amount: json['amount'],
         attachmentUrl: json['attachmentUrl'],
-        txnTime: json['txnTime']);
+        txnTime: json['txnTime'],
+        isDeleted: json['isDeleted'] == 1,
+        isSynced: json['isSynced'] == 1);
   }
 }

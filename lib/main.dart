@@ -13,8 +13,8 @@ void main() async {
   await Firebase.initializeApp();
   Workmanager().initialize(callbackDispatcher, isInDebugMode: true);
   Workmanager().registerPeriodicTask(
-    "1", // Unique task name
-    "backupTask", // Task name
+    "txnBackup", // Unique task name
+    "TransactionFirebaseBackup", // Task name
     frequency: const Duration(minutes: 15), // Frequency of the backup
   );
   runApp(Login());

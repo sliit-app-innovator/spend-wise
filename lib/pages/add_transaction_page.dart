@@ -77,13 +77,14 @@ class _AddExpensesPage extends State<AddTransactionPage> {
           description: _description,
           amount: _amount,
           txnTime: formattedDate,
-          attachmentUrl: attachmentUrl);
+          attachmentUrl: attachmentUrl,
+          isDeleted: false,
+          isSynced: false);
 
       await TransactionRepository().insertTransaction(txn);
       setState(() {
         _transactions.add(txn);
       });
-      saveTransaction(txn);
 
       _descriptionController.clear();
       _amountController.clear();

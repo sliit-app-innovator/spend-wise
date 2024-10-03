@@ -54,7 +54,9 @@ class UserRepository {
         description TEXT,
         amount DOUBLE,
         attachmentUrl TEXT,
-        txnTime TEXT
+        txnTime TEXT,
+        isDeleted INTEGER,
+        isSynced INTEGER
       )
     ''');
     await db.execute('''
