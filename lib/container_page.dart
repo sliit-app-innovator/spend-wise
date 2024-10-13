@@ -71,7 +71,7 @@ class _MyAppState extends State<MyApp> {
 
   static List<Widget> pages = <Widget>[
     HomePage(),
-    TransactionsPage(userData: UserDto(firstName: '', lastName: '', username: 'damith', password: '', email: 'email')),
+    TransactionsPage(userData: UserDto(firstName: '', lastName: '', username: '', password: '', email: '')),
     TransactionHistoryPage(),
   ];
 

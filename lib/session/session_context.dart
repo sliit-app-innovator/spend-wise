@@ -8,6 +8,31 @@ class SessionContext {
       password: '',
       email: ''); // Make it nullable if you want to initialize it later
 
+  List<String> incomeSourceType = ['Select', 'Salary', 'Invetment', 'Interest', 'Insurence Claim'];
+  List<String> expenseSourceType = [
+    'Select',
+    'Food & Groceries',
+    'Transportation',
+    'Rent/Mortgage',
+    'Utilities',
+    'Entertainment',
+    'Health & Fitness',
+    'Insurance',
+    'Shopping',
+    'Dining Out',
+    'Travel',
+    'Education',
+    'Savings',
+    'Investments',
+    'Debt Repayment',
+    'Subscriptions',
+    'Gifts & Donations',
+    'Personal Care',
+    'Pet Care',
+    'Miscellaneous',
+    'Emergency Fund'
+  ];
+
   // Private constructor
   SessionContext._privateConstructor();
 
@@ -22,5 +47,9 @@ class SessionContext {
   // Method to update user data
   void updateUserData({required UserDto userData}) {
     this.userData = userData; // Correct the parameter reference
+  }
+
+  bool expenseType(String source) {
+    return expenseSourceType.contains(source);
   }
 }

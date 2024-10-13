@@ -5,6 +5,7 @@ import 'package:spend_wise/dto/transaction.dart';
 import 'package:spend_wise/pages/home_page.dart';
 import 'package:spend_wise/dto/user.dart';
 import 'package:spend_wise/model/transaction_repository.dart';
+import 'package:spend_wise/session/session_context.dart';
 import 'package:spend_wise/utils/colors.dart';
 import 'dart:io';
 
@@ -28,9 +29,10 @@ class _PaymentsPageState extends State<TransactionsPage> {
 
   @override
   Widget build(BuildContext context) {
+    SessionContext context = SessionContext();
     return Scaffold(
       body: StreamBuilder<List<TransactionDto>>(
-        stream: TransactionRepository().getAllTransactionsStreamSQLLimit(), // Use the stream here
+        stream: TransactionRepository().getAllTransactionsStreamSQLLimit(context.userData.username), // Use the stream here
         builder: (BuildContext context, AsyncSnapshot<List<TransactionDto>> snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(child: CircularProgressIndicator()); // Loading state

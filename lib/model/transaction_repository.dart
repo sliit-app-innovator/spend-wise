@@ -74,15 +74,16 @@ class TransactionRepository {
   }
 
   // Retrieve top transactions
-  Stream<List<TransactionDto>> getRecentTransactionsStreamSQL() {
+  Stream<List<TransactionDto>> getRecentTransactionsStreamSQL(String username) {
     return Stream.fromFuture(() async {
       Database db = await database;
-      List<Map<String, dynamic>> result = await db.query('transactions', where: 'isDeleted = ?', whereArgs: [0], limit: 10);
+      List<Map<String, dynamic>> result = await db.query('transactions',
+          where: 'isDeleted = ? AND userId = ? ', whereArgs: [0, username], orderBy: 'txnTime DESC', limit: 10);
       return result.map((map) => TransactionDto.fromJson(map)).toList();
     }());
   }
 
-  Stream<List<TransactionDto>> getAllTransactionsStreamSQLLimit() {
+  Stream<List<TransactionDto>> getAllTransactionsStreamSQLLimit(String user) {
     DateTime now = DateTime.now();
     String startOfMonth = DateTime(now.year, now.month, 1).toString();
     String endOfMonth = DateTime(now.year, now.month + 1, 0).toString();
@@ -90,7 +91,7 @@ class TransactionRepository {
     return Stream.fromFuture(() async {
       Database db = await database;
       List<Map<String, dynamic>> result =
-          await db.query('transactions', where: 'isDeleted = ?', whereArgs: [0], orderBy: 'txnTime DESC', limit: 1000);
+          await db.query('transactions', where: 'isDeleted = ? AND userId = ?', whereArgs: [0, user], orderBy: 'txnTime DESC', limit: 1000);
       return result.map((map) => TransactionDto.fromJson(map)).toList();
     }());
   }
@@ -117,7 +118,7 @@ class TransactionRepository {
     );
   }
 
-  Future<MonthlyTransactionSummary> getMonthlyTransactionSummary() async {
+  Future<MonthlyTransactionSummary> getMonthlyTransactionSummary(String username) async {
     MonthlyTransactionSummary summary;
     // Initialize an empty list to hold transactions
     List<TransactionDto> transactions = [];
@@ -127,7 +128,7 @@ class TransactionRepository {
     Map<String, double> sampleMap = {};
 
     // Get the stream of transactions
-    Stream<List<TransactionDto>> transactionStream = getAllTransactionsStreamSQLLimit();
+    Stream<List<TransactionDto>> transactionStream = getAllTransactionsStreamSQLLimit(username);
 
     // Use await for to process the stream asynchronously
     await for (List<TransactionDto> transactionBatch in transactionStream) {

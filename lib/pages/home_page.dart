@@ -3,6 +3,7 @@ import 'package:spend_wise/dto/transaction.dart';
 import 'package:spend_wise/pages/add_transaction_page.dart';
 import 'package:spend_wise/model/transaction_repository.dart';
 import 'package:spend_wise/dto/mothly_transaction_summary_view.dart';
+import 'package:spend_wise/session/session_context.dart';
 import 'package:spend_wise/utils/colors.dart';
 import 'package:fl_chart/fl_chart.dart';
 
@@ -25,8 +26,7 @@ class _HomePageState extends State<HomePage> {
 
   // Method to load transactions (can be async if needed)
   void loadTransactionsSummary() {
-    TransactionRepository()
-        .getMonthlyTransactionSummary(); // Fetch transactions
+    TransactionRepository().getMonthlyTransactionSummary(SessionContext().userData.username); // Fetch transactions
     setState(() {
       //totalExp = 100;
       //totalInc = 1000;
@@ -37,9 +37,8 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: FutureBuilder<MonthlyTransactionSummary>(
-        future: TransactionRepository().getMonthlyTransactionSummary(),
-        builder: (BuildContext context,
-            AsyncSnapshot<MonthlyTransactionSummary> snapshot) {
+        future: TransactionRepository().getMonthlyTransactionSummary(SessionContext().userData.username),
+        builder: (BuildContext context, AsyncSnapshot<MonthlyTransactionSummary> snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return CircularProgressIndicator();
           } else if (snapshot.hasError) {
@@ -53,21 +52,14 @@ class _HomePageState extends State<HomePage> {
             double balance = 0;
             String currency = "LKR";
 
-            summary.trasactions.forEach((tx) {
-              recentTxns.add(transactionItem(
-                  tx.source,
-                  tx.txnTime,
-                  tx.amount,
-                  currency,
-                  tx.type == 'Income'
-                      ? 'assets/images/income.png'
-                      : 'assets/images/expense.png'));
-            });
+            for (int i = 0; i < summary.trasactions.length && i < 10; i++) {
+              recentTxns.add(transactionItem(summary.trasactions[i].source, summary.trasactions[i].txnTime, summary.trasactions[i].amount,
+                  currency, summary.trasactions[i].type == 'Income' ? 'assets/images/income.png' : 'assets/images/expense.png'));
+            }
 
             summary.expensesMap.forEach((key, value) {
               print('Category: $key, Amount: $value');
-              summaryViews
-                  .add(summaryItem(key, value, 'assets/images/expense.png'));
+              summaryViews.add(summaryItem(key, value));
             });
 
             totalExp = summary.totalExpense;
@@ -75,8 +67,7 @@ class _HomePageState extends State<HomePage> {
             balance = totalInc - totalExp;
 
             return Padding(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
+              padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -97,10 +88,7 @@ class _HomePageState extends State<HomePage> {
                         const SizedBox(height: 10),
                         Text(
                           '$currency ${balance.toStringAsFixed(2)}',
-                          style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 32,
-                              fontWeight: FontWeight.bold),
+                          style: const TextStyle(color: Colors.white, fontSize: 32, fontWeight: FontWeight.bold),
                         ),
                         const SizedBox(height: 10),
                         Row(
@@ -125,8 +113,7 @@ class _HomePageState extends State<HomePage> {
                   // Analytics
                   Container(
                     width: double.infinity,
-                    padding:
-                        EdgeInsets.all(10.0), // Add padding around the text
+                    padding: EdgeInsets.all(10.0), // Add padding around the text
                     //  color: Color(0xFFD6C4A8), // Light brown color
                     decoration: BoxDecoration(
                       color: const Color.fromARGB(255, 240, 215, 206),
@@ -137,11 +124,9 @@ class _HomePageState extends State<HomePage> {
                       children: [
                         Text(
                           'Summary',
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 18),
+                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
                         ),
-                        Icon(Icons.summarize_outlined,
-                            color: AppColors.TABLE_HEADER_COLOR),
+                        Icon(Icons.summarize_outlined, color: AppColors.TABLE_HEADER_COLOR),
                       ],
                     ),
                   ),
@@ -154,8 +139,7 @@ class _HomePageState extends State<HomePage> {
                   // Transactions
                   Container(
                     width: double.infinity,
-                    padding:
-                        EdgeInsets.all(10.0), // Add padding around the text
+                    padding: EdgeInsets.all(10.0), // Add padding around the text
                     //  color: Color(0xFFD6C4A8), // Light brown color
                     decoration: BoxDecoration(
                       color: const Color.fromARGB(255, 240, 215, 206),
@@ -166,11 +150,9 @@ class _HomePageState extends State<HomePage> {
                       children: [
                         Text(
                           'Recent Transactions',
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 18),
+                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
                         ),
-                        Icon(Icons.list_alt_outlined,
-                            color: AppColors.TABLE_HEADER_COLOR),
+                        Icon(Icons.list_alt_outlined, color: AppColors.TABLE_HEADER_COLOR),
                       ],
                     ),
                   ),
@@ -224,8 +206,7 @@ class _HomePageState extends State<HomePage> {
     return Colors.primaries[key.hashCode % Colors.primaries.length];
   }
 
-  Widget transactionItem(String source, String datetime, double amount,
-      String currency, iconPath) {
+  Widget transactionItem(String source, String datetime, double amount, String currency, iconPath) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 10.0),
       child: Row(
@@ -233,8 +214,7 @@ class _HomePageState extends State<HomePage> {
           CircleAvatar(
               radius: 20,
               child: Padding(
-                padding:
-                    EdgeInsets.all(10), // Add padding to reduce the image size
+                padding: EdgeInsets.all(10), // Add padding to reduce the image size
                 child: ClipOval(
                   child: Image.asset(
                     iconPath,
@@ -266,11 +246,16 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget summaryItem(String source, double amount, iconPath) {
+  Widget summaryItem(String source, double amount) {
+    Icon bullet = Icon(Icons.arrow_downward_outlined, color: Colors.green);
+    if (SessionContext().expenseType(source)) {
+      bullet = Icon(Icons.arrow_upward_outlined, color: Colors.red);
+    }
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 10.0),
       child: Row(
         children: [
+          bullet,
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
