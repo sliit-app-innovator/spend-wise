@@ -6,6 +6,7 @@ import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart';
+import 'package:spend_wise/model/transaction_repository_firebase.dart';
 import 'package:spend_wise/utils/colors.dart';
 
 class AddTransactionPage extends StatefulWidget {
@@ -76,7 +77,9 @@ class _AddExpensesPage extends State<AddTransactionPage> {
           description: _description,
           amount: _amount,
           txnTime: formattedDate,
-          attachmentUrl: attachmentUrl);
+          attachmentUrl: attachmentUrl,
+          isDeleted: false,
+          isSynced: false);
 
       await TransactionRepository().insertTransaction(txn);
       setState(() {

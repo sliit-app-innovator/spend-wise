@@ -25,7 +25,6 @@ class _HomePageState extends State<HomePage> {
 
   // Method to load transactions (can be async if needed)
   void loadTransactionsSummary() {
-    DateTime now = DateTime.now();
     TransactionRepository()
         .getMonthlyTransactionSummary(); // Fetch transactions
     setState(() {

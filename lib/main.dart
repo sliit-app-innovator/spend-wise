@@ -1,14 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:spend_wise/container_page.dart';
+import 'package:spend_wise/dto/user.dart';
 import 'package:spend_wise/model/user_repository.dart';
 import 'package:spend_wise/pages/signup_page.dart';
+import 'package:workmanager/workmanager.dart';
+import 'package:spend_wise/background/flutter_sync.dart';
+import 'package:spend_wise/model/user_configs_repository_firebase.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   UserRepository userRepository = UserRepository();
   await userRepository.database;
   await Firebase.initializeApp();
+  Workmanager().initialize(callbackDispatcher, isInDebugMode: true);
+  Workmanager().registerPeriodicTask(
+    "txnBackup", // Unique task name
+    "TransactionFirebaseBackup", // Task name
+    frequency: const Duration(minutes: 15), // Frequency of the backup
+  );
   runApp(Login());
 }
 
@@ -33,6 +43,7 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   final _formKey = GlobalKey<FormState>();
+  final FirebaseUserConfigsRepository userFirebaseRepo = FirebaseUserConfigsRepository();
   bool _isPasswordHidden = true;
   final TextEditingController _userIdController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
@@ -53,10 +64,21 @@ class _LoginPageState extends State<LoginPage> {
         );
       } catch (e) {
         if (e.toString().contains('User not found')) {
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-              content: Text('Invalid Login. Please try agian'),
-              backgroundColor: Color.fromARGB(255, 204, 117, 3),
-              duration: Duration(seconds: 3)));
+          UserDto user = UserDto(firstName: '', lastName: '', username: userId, password: password, email: userId);
+          UserDto? existingUser = await userFirebaseRepo.existingUser(user);
+          if (existingUser != null && existingUser.password == password) {
+            _userRepository.registerUser(existingUser);
+            restoreDataFromFirebase();
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => MyApp()),
+            );
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                content: Text('Invalid Login. Please try agian'),
+                backgroundColor: Color.fromARGB(255, 204, 117, 3),
+                duration: Duration(seconds: 3)));
+          }
         }
       }
     }
@@ -66,8 +88,7 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     return GestureDetector(
         onTap: () {
-          FocusScope.of(context)
-              .unfocus(); // Dismiss the keyboard when tapping outside
+          FocusScope.of(context).unfocus(); // Dismiss the keyboard when tapping outside
         },
         child: Scaffold(
           backgroundColor: const Color.fromARGB(255, 172, 109, 78),
@@ -105,8 +126,7 @@ class _LoginPageState extends State<LoginPage> {
                                 borderRadius: BorderRadius.circular(10),
                                 borderSide: BorderSide(color: Colors.brown),
                               ),
-                              prefixIcon:
-                                  Icon(Icons.person, color: Colors.brown),
+                              prefixIcon: Icon(Icons.person, color: Colors.brown),
                             ),
                             keyboardType: TextInputType.emailAddress,
                             validator: (value) {
@@ -129,13 +149,10 @@ class _LoginPageState extends State<LoginPage> {
                                   borderRadius: BorderRadius.circular(10),
                                   borderSide: BorderSide(color: Colors.brown),
                                 ),
-                                prefixIcon:
-                                    Icon(Icons.lock, color: Colors.brown),
+                                prefixIcon: Icon(Icons.lock, color: Colors.brown),
                                 suffixIcon: IconButton(
                                   icon: Icon(
-                                    _isPasswordHidden
-                                        ? Icons.visibility_off
-                                        : Icons.visibility,
+                                    _isPasswordHidden ? Icons.visibility_off : Icons.visibility,
                                     color: Colors.brown,
                                   ),
                                   onPressed: () {
@@ -163,8 +180,7 @@ class _LoginPageState extends State<LoginPage> {
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.brown,
                               foregroundColor: Colors.white,
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 40, vertical: 15),
+                              padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(10),
                               ),
@@ -185,8 +201,7 @@ class _LoginPageState extends State<LoginPage> {
                                 onPressed: () {
                                   Navigator.push(
                                     context,
-                                    MaterialPageRoute(
-                                        builder: (context) => SignupPage()),
+                                    MaterialPageRoute(builder: (context) => SignupPage()),
                                   );
                                 },
                                 child: const Text(
@@ -199,8 +214,7 @@ class _LoginPageState extends State<LoginPage> {
                                   print("Add transaction page naviation");
                                   Navigator.push(
                                     context,
-                                    MaterialPageRoute(
-                                        builder: (context) => SignupPage()),
+                                    MaterialPageRoute(builder: (context) => SignupPage()),
                                   );
                                 },
                                 child: const Text(

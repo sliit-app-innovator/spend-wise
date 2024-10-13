@@ -4,8 +4,7 @@ import 'package:sqflite/sqflite.dart';
 import 'package:spend_wise/dto/transaction.dart';
 
 class TransactionRepository {
-  static final TransactionRepository _instance =
-      TransactionRepository._internal();
+  static final TransactionRepository _instance = TransactionRepository._internal();
   static Database? _database;
 
   factory TransactionRepository() {
@@ -45,7 +44,9 @@ class TransactionRepository {
         description TEXT,
         amount DOUBLE,
         attachmentUrl TEXT,
-        txnTime TEXT
+        txnTime TEXT,
+        isDeleted INTEGER,
+        isSynced INTEGER
       )
     ''');
   }
@@ -53,8 +54,7 @@ class TransactionRepository {
   // Insert a new transaction
   Future<int> insertTransaction(TransactionDto transaction) async {
     Database db = await database;
-    return await db.insert('transactions', transaction.toJsonSQL(),
-        conflictAlgorithm: ConflictAlgorithm.replace);
+    return await db.insert('transactions', transaction.toJsonSQL(), conflictAlgorithm: ConflictAlgorithm.replace);
   }
 
   // Retrieve all transactions
@@ -77,8 +77,7 @@ class TransactionRepository {
   Stream<List<TransactionDto>> getRecentTransactionsStreamSQL() {
     return Stream.fromFuture(() async {
       Database db = await database;
-      List<Map<String, dynamic>> result =
-          await db.query('transactions', limit: 10);
+      List<Map<String, dynamic>> result = await db.query('transactions', where: 'isDeleted = ?', whereArgs: [0], limit: 10);
       return result.map((map) => TransactionDto.fromJson(map)).toList();
     }());
   }
@@ -90,11 +89,8 @@ class TransactionRepository {
 
     return Stream.fromFuture(() async {
       Database db = await database;
-      List<Map<String, dynamic>> result = await db.query('transactions',
-          //  where: 'txnTime >= ? AND txnTime <= ?',
-          //   whereArgs: [startOfMonth, endOfMonth],
-          orderBy: 'txnTime DESC',
-          limit: 1000);
+      List<Map<String, dynamic>> result =
+          await db.query('transactions', where: 'isDeleted = ?', whereArgs: [0], orderBy: 'txnTime DESC', limit: 1000);
       return result.map((map) => TransactionDto.fromJson(map)).toList();
     }());
   }
@@ -110,13 +106,14 @@ class TransactionRepository {
     );
   }
 
-  // Delete a transaction
+  // Delete a transaction / actual deletion happend after firebase sync
   Future<int> deleteTransaction(int id) async {
     Database db = await database;
-    return await db.delete(
+    return await db.update(
       'transactions',
-      where: 'id = ?',
-      whereArgs: [id],
+      {'isDeleted': 1}, // Values to update
+      where: 'id = ?', // Condition
+      whereArgs: [id], // The specific id to update
     );
   }
 
@@ -130,8 +127,7 @@ class TransactionRepository {
     Map<String, double> sampleMap = {};
 
     // Get the stream of transactions
-    Stream<List<TransactionDto>> transactionStream =
-        getAllTransactionsStreamSQLLimit();
+    Stream<List<TransactionDto>> transactionStream = getAllTransactionsStreamSQLLimit();
 
     // Use await for to process the stream asynchronously
     await for (List<TransactionDto> transactionBatch in transactionStream) {
@@ -145,8 +141,7 @@ class TransactionRepository {
         }
         if (sampleMap.containsKey(txn.source)) {
           // If it exists, add the amount to the existing value
-          sampleMap[txn.source] =
-              sampleMap[txn.source]! + txn.amount; // Use '!' to assert non-null
+          sampleMap[txn.source] = sampleMap[txn.source]! + txn.amount; // Use '!' to assert non-null
         } else {
           // If it doesn't exist, add the new key and amount
           sampleMap[txn.source] = txn.amount;
