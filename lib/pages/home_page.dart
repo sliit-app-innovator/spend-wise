@@ -66,6 +66,11 @@ class _HomePageState extends State<HomePage> {
             totalInc = summary.totalIncome;
             balance = totalInc - totalExp;
 
+            TextStyle balanceStyle = TextStyle(color: Color.fromARGB(255, 6, 250, 18), fontSize: 32, fontWeight: FontWeight.bold);
+            if (balance < 0) {
+              balanceStyle = TextStyle(color: const Color.fromARGB(255, 255, 19, 2), fontSize: 32, fontWeight: FontWeight.bold);
+            }
+
             return Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
               child: Column(
@@ -88,7 +93,7 @@ class _HomePageState extends State<HomePage> {
                         const SizedBox(height: 10),
                         Text(
                           '$currency ${balance.toStringAsFixed(2)}',
-                          style: const TextStyle(color: Colors.white, fontSize: 32, fontWeight: FontWeight.bold),
+                          style: balanceStyle,
                         ),
                         const SizedBox(height: 10),
                         Row(
