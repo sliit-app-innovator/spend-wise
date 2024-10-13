@@ -4,6 +4,7 @@ import 'package:spend_wise/container_page.dart';
 import 'package:spend_wise/dto/user.dart';
 import 'package:spend_wise/model/user_repository.dart';
 import 'package:spend_wise/pages/signup_page.dart';
+import 'package:spend_wise/session/session_context.dart';
 import 'package:workmanager/workmanager.dart';
 import 'package:spend_wise/background/flutter_sync.dart';
 import 'package:spend_wise/model/user_configs_repository_firebase.dart';
@@ -57,7 +58,9 @@ class _LoginPageState extends State<LoginPage> {
       password = _passwordController.text;
 
       try {
-        await _userRepository.login(userId, password);
+        UserDto user = await _userRepository.login(userId, password);
+        SessionContext session = SessionContext();
+        session.updateUserData(userData: user);
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => MyApp()),
@@ -68,6 +71,8 @@ class _LoginPageState extends State<LoginPage> {
           UserDto? existingUser = await userFirebaseRepo.existingUser(user);
           if (existingUser != null && existingUser.password == password) {
             _userRepository.registerUser(existingUser);
+            SessionContext session = SessionContext();
+            session.updateUserData(userData: existingUser);
             restoreDataFromFirebase();
             Navigator.pushReplacement(
               context,

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:spend_wise/dto/user.dart';
 import 'package:spend_wise/main.dart';
 import 'package:spend_wise/pages/settings.dart';
+import 'package:spend_wise/session/session_context.dart';
 import 'package:spend_wise/utils/colors.dart';
 import 'pages/home_page.dart';
 import 'pages/transaction_history_page.dart';
@@ -26,7 +28,6 @@ class _MyAppState extends State<MyApp> {
   File? _imageFile;
   final ImagePicker _picker = ImagePicker();
   int _selectedIndex = 0;
-
   @override
   void initState() {
     super.initState();
@@ -70,7 +71,7 @@ class _MyAppState extends State<MyApp> {
 
   static List<Widget> pages = <Widget>[
     HomePage(),
-    TransactionsPage(),
+    TransactionsPage(userData: UserDto(firstName: '', lastName: '', username: 'damith', password: '', email: 'email')),
     TransactionHistoryPage(),
   ];
 
@@ -89,8 +90,7 @@ class _MyAppState extends State<MyApp> {
         ],
       ),
       drawer: getLeftMenu(context, _imageFile),
-      body: pages[
-          _selectedIndex], // Your selected page// Show the FAB only on the HomePage
+      body: pages[_selectedIndex], // Your selected page// Show the FAB only on the HomePage
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
@@ -113,10 +113,12 @@ class _MyAppState extends State<MyApp> {
   }
 
   Drawer getLeftMenu(BuildContext context, File? imageFile) {
+    SessionContext session = SessionContext();
+    String userDisplayLabel = '${session.userData.firstName} ${session.userData.lastName}';
+
     return Drawer(
         child: Container(
-      color: const Color.fromARGB(
-          255, 243, 238, 235), // Light brown background for the drawer body
+      color: const Color.fromARGB(255, 243, 238, 235), // Light brown background for the drawer body
       child: ListView(
         padding: EdgeInsets.zero,
         children: <Widget>[
@@ -131,10 +133,8 @@ class _MyAppState extends State<MyApp> {
                   children: [
                     CircleAvatar(
                       radius: 40,
-                      backgroundImage: imageFile != null
-                          ? FileImage(imageFile)
-                          : const AssetImage('assets/images/aviator.webp')
-                              as ImageProvider,
+                      backgroundImage:
+                          imageFile != null ? FileImage(imageFile) : const AssetImage('assets/images/aviator.webp') as ImageProvider,
                     ),
                     Positioned(
                       bottom: 0,
@@ -147,9 +147,9 @@ class _MyAppState extends State<MyApp> {
                   ],
                 ),
                 const SizedBox(height: 10),
-                const Text(
-                  'Damith Sulochana',
-                  style: TextStyle(
+                Text(
+                  userDisplayLabel,
+                  style: const TextStyle(
                     color: Colors.white,
                     fontSize: 20,
                   ),

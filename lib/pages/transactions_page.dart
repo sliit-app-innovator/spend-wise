@@ -3,13 +3,14 @@ import 'package:spend_wise/container_page.dart';
 import 'package:spend_wise/pages/add_transaction_page.dart';
 import 'package:spend_wise/dto/transaction.dart';
 import 'package:spend_wise/pages/home_page.dart';
-import 'package:spend_wise/pages/transaction_page.dart';
+import 'package:spend_wise/dto/user.dart';
 import 'package:spend_wise/model/transaction_repository.dart';
 import 'package:spend_wise/utils/colors.dart';
 import 'dart:io';
 
 class TransactionsPage extends StatefulWidget {
-  const TransactionsPage({super.key});
+  final UserDto userData;
+  const TransactionsPage({super.key, required this.userData});
 
   @override
   _PaymentsPageState createState() => _PaymentsPageState();
@@ -18,24 +19,27 @@ class TransactionsPage extends StatefulWidget {
 class _PaymentsPageState extends State<TransactionsPage> {
   List<Widget> recentTxns = [];
   File? _imageFile;
+  late UserDto userData;
+  @override
+  void initState() {
+    super.initState();
+    userData = widget.userData;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: StreamBuilder<List<TransactionDto>>(
-        stream: TransactionRepository()
-            .getAllTransactionsStreamSQLLimit(), // Use the stream here
-        builder: (BuildContext context,
-            AsyncSnapshot<List<TransactionDto>> snapshot) {
+        stream: TransactionRepository().getAllTransactionsStreamSQLLimit(), // Use the stream here
+        builder: (BuildContext context, AsyncSnapshot<List<TransactionDto>> snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(child: CircularProgressIndicator()); // Loading state
           } else if (snapshot.hasError) {
-            return Center(
-                child: Text('Error: ${snapshot.error}')); // Error state
+            return Center(child: Text('Error: ${snapshot.error}')); // Error state
           } else if (snapshot.hasData && snapshot.data!.isEmpty) {
             return Center(child: Text('No transactions found.'));
           } else if (snapshot.hasData) {
             List<TransactionDto> transactions = snapshot.data!;
-            ;
             List<Map<String, dynamic>> recentTxns = [];
 
             transactions.forEach((tx) {
@@ -50,21 +54,17 @@ class _PaymentsPageState extends State<TransactionsPage> {
                     tx.amount,
                     'LKR',
                     tx.attachmentUrl,
-                    (tx.type == 'Income'
-                        ? 'assets/images/income.png'
-                        : 'assets/images/expense.png'),
+                    (tx.type == 'Income' ? 'assets/images/income.png' : 'assets/images/expense.png'),
                     (tx.type == 'Income'
                         ? Icon(Icons.get_app_rounded, color: Colors.brown)
                         : Icon(Icons.upload_outlined, color: Colors.brown))),
               });
             });
 
-            List<Widget> widgetList =
-                recentTxns.map((txn) => txn['widget'] as Widget).toList();
+            List<Widget> widgetList = recentTxns.map((txn) => txn['widget'] as Widget).toList();
 
             return Padding(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
+              padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -82,11 +82,9 @@ class _PaymentsPageState extends State<TransactionsPage> {
                       children: [
                         Text(
                           'This Month Transactions',
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 18),
+                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
                         ),
-                        Icon(Icons.list_alt_outlined,
-                            color: AppColors.TABLE_HEADER_COLOR),
+                        Icon(Icons.list_alt_outlined, color: AppColors.TABLE_HEADER_COLOR),
                       ],
                     ),
                   ),
@@ -106,17 +104,8 @@ class _PaymentsPageState extends State<TransactionsPage> {
     );
   }
 
-  Widget transactionItem(
-      String id,
-      String source,
-      String type,
-      String note,
-      String datetime,
-      double amount,
-      String currency,
-      String? attchementUrl,
-      iconPath,
-      Icon viewIcon) {
+  Widget transactionItem(String id, String source, String type, String note, String datetime, double amount, String currency,
+      String? attchementUrl, iconPath, Icon viewIcon) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 0),
       child: Row(
@@ -148,8 +137,7 @@ class _PaymentsPageState extends State<TransactionsPage> {
             ],
           ),
           const Spacer(),
-          Text(amount.toStringAsFixed(2),
-              style: const TextStyle(fontWeight: FontWeight.bold)),
+          Text(amount.toStringAsFixed(2), style: const TextStyle(fontWeight: FontWeight.bold)),
           IconButton(
             icon: viewIcon,
             onPressed: () {
@@ -164,8 +152,7 @@ class _PaymentsPageState extends State<TransactionsPage> {
                       padding: const EdgeInsets.all(16),
                       child: Row(
                         children: [
-                          const Icon(Icons.get_app_rounded,
-                              color: Colors.white),
+                          const Icon(Icons.get_app_rounded, color: Colors.white),
                           const SizedBox(width: 8),
                           Expanded(
                             child: Text(
@@ -221,8 +208,7 @@ class _PaymentsPageState extends State<TransactionsPage> {
             },
           ),
           IconButton(
-            icon:
-                const Icon(Icons.delete_outline_outlined, color: Colors.brown),
+            icon: const Icon(Icons.delete_outline_outlined, color: Colors.brown),
             onPressed: () {
               showDialog(
                 context: context,
@@ -234,8 +220,7 @@ class _PaymentsPageState extends State<TransactionsPage> {
                       padding: const EdgeInsets.all(16),
                       child: const Row(
                         children: [
-                          Icon(Icons.warning_amber_rounded,
-                              color: Colors.white),
+                          Icon(Icons.warning_amber_rounded, color: Colors.white),
                           SizedBox(width: 8),
                           Expanded(
                             child: Text(
@@ -269,15 +254,13 @@ class _PaymentsPageState extends State<TransactionsPage> {
                       ),
                       TextButton(
                         onPressed: () {
-                          print(TransactionRepository()
-                              .deleteTransaction(int.parse(id)));
+                          print(TransactionRepository().deleteTransaction(int.parse(id)));
 
                           Navigator.of(context).pop();
                           Navigator.pushReplacement(
                             context,
                             MaterialPageRoute(
-                              builder: (BuildContext context) =>
-                                  MyApp(), // Replace with your page
+                              builder: (BuildContext context) => MyApp(), // Replace with your page
                             ),
                           );
                         },

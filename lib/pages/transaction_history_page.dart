@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class TransactionHistoryPage extends StatefulWidget {
-  const TransactionHistoryPage({super.key});
+  const TransactionHistoryPage({super.key, use});
 
   @override
   _TransactionHistoryPageState createState() => _TransactionHistoryPageState();
