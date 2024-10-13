@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:spend_wise/background/flutter_sync.dart';
 import 'package:spend_wise/dto/user.dart';
 import 'package:spend_wise/main.dart';
+import 'package:spend_wise/model/user_configs_repository_firebase.dart';
 import 'package:spend_wise/model/user_repository.dart';
 
 class SignupPage extends StatefulWidget {
@@ -12,12 +14,12 @@ class _SignupPage extends State<SignupPage> {
   bool _isPasswordHidden = true;
   final _formKey = GlobalKey<FormState>();
   final UserRepository userRepository = UserRepository();
+  final FirebaseUserConfigsRepository userFirebaseRepo = FirebaseUserConfigsRepository();
   final TextEditingController _firstNameController = TextEditingController();
   final TextEditingController _lastNameController = TextEditingController();
   final TextEditingController _userIdController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _confirmPasswordController =
-      TextEditingController(); // Confirm password controller
+  final TextEditingController _confirmPasswordController = TextEditingController(); // Confirm password controller
   final TextEditingController _emailController = TextEditingController();
 
   @override
@@ -36,8 +38,7 @@ class _SignupPage extends State<SignupPage> {
     // UserDto userDto = new UserDto();
     return GestureDetector(
         onTap: () {
-          FocusScope.of(context)
-              .unfocus(); // Dismiss the keyboard when tapping outside
+          FocusScope.of(context).unfocus(); // Dismiss the keyboard when tapping outside
         },
         child: Scaffold(
           appBar: AppBar(
@@ -80,8 +81,7 @@ class _SignupPage extends State<SignupPage> {
                                 borderRadius: BorderRadius.circular(10),
                                 borderSide: BorderSide(color: Colors.brown),
                               ),
-                              prefixIcon:
-                                  Icon(Icons.person, color: Colors.brown),
+                              prefixIcon: Icon(Icons.person, color: Colors.brown),
                             ),
                             keyboardType: TextInputType.emailAddress,
                             validator: (value) {
@@ -104,8 +104,7 @@ class _SignupPage extends State<SignupPage> {
                                 borderRadius: BorderRadius.circular(10),
                                 borderSide: BorderSide(color: Colors.brown),
                               ),
-                              prefixIcon:
-                                  Icon(Icons.person, color: Colors.brown),
+                              prefixIcon: Icon(Icons.person, color: Colors.brown),
                             ),
                             keyboardType: TextInputType.emailAddress,
                             validator: (value) {
@@ -128,14 +127,12 @@ class _SignupPage extends State<SignupPage> {
                                 borderRadius: BorderRadius.circular(10),
                                 borderSide: BorderSide(color: Colors.brown),
                               ),
-                              prefixIcon:
-                                  Icon(Icons.email, color: Colors.brown),
+                              prefixIcon: Icon(Icons.email, color: Colors.brown),
                             ),
                             keyboardType: TextInputType.emailAddress,
                             validator: (value) {
                               // Basic email pattern for validation
-                              String pattern =
-                                  r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$';
+                              String pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$';
                               RegExp regex = RegExp(pattern);
                               if (value == null || value.isEmpty) {
                                 return 'Please enter your email';
@@ -158,8 +155,7 @@ class _SignupPage extends State<SignupPage> {
                                 borderRadius: BorderRadius.circular(10),
                                 borderSide: BorderSide(color: Colors.brown),
                               ),
-                              prefixIcon:
-                                  Icon(Icons.person, color: Colors.brown),
+                              prefixIcon: Icon(Icons.person, color: Colors.brown),
                             ),
                             keyboardType: TextInputType.emailAddress,
                             validator: (value) {
@@ -187,19 +183,15 @@ class _SignupPage extends State<SignupPage> {
                                   borderRadius: BorderRadius.circular(10),
                                   borderSide: BorderSide(color: Colors.brown),
                                 ),
-                                prefixIcon:
-                                    Icon(Icons.lock, color: Colors.brown),
+                                prefixIcon: Icon(Icons.lock, color: Colors.brown),
                                 suffixIcon: IconButton(
                                   icon: Icon(
-                                    _isPasswordHidden
-                                        ? Icons.visibility_off
-                                        : Icons.visibility,
+                                    _isPasswordHidden ? Icons.visibility_off : Icons.visibility,
                                     color: Colors.brown,
                                   ),
                                   onPressed: () {
                                     setState(() {
-                                      _isPasswordHidden =
-                                          !_isPasswordHidden; // Toggle the password visibility
+                                      _isPasswordHidden = !_isPasswordHidden; // Toggle the password visibility
                                     });
                                   },
                                 )),
@@ -224,19 +216,15 @@ class _SignupPage extends State<SignupPage> {
                                   borderRadius: BorderRadius.circular(10),
                                   borderSide: BorderSide(color: Colors.brown),
                                 ),
-                                prefixIcon:
-                                    Icon(Icons.lock, color: Colors.brown),
+                                prefixIcon: Icon(Icons.lock, color: Colors.brown),
                                 suffixIcon: IconButton(
                                   icon: Icon(
-                                    _isPasswordHidden
-                                        ? Icons.visibility_off
-                                        : Icons.visibility,
+                                    _isPasswordHidden ? Icons.visibility_off : Icons.visibility,
                                     color: Colors.brown,
                                   ),
                                   onPressed: () {
                                     setState(() {
-                                      _isPasswordHidden =
-                                          !_isPasswordHidden; // Toggle the password visibility
+                                      _isPasswordHidden = !_isPasswordHidden; // Toggle the password visibility
                                     });
                                   },
                                 )),
@@ -273,8 +261,7 @@ class _SignupPage extends State<SignupPage> {
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.brown,
                               foregroundColor: Colors.white,
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 40, vertical: 15),
+                              padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(10),
                               ),
@@ -305,18 +292,14 @@ class _SignupPage extends State<SignupPage> {
 
       try {
         await userRepository.getUser(userId);
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-            content: Text('User already exists'),
-            backgroundColor: Colors.red,
-            duration: Duration(seconds: 3)));
+        ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('User already exists'), backgroundColor: Colors.red, duration: Duration(seconds: 3)));
       } catch (e) {
         if (e.toString().contains('User not found')) {
           try {
             await userRepository.getUserByEmail(_emailController.text);
-            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                content: Text('Email Address already exists'),
-                backgroundColor: Colors.red,
-                duration: Duration(seconds: 3)));
+            ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Email Address already exists'), backgroundColor: Colors.red, duration: Duration(seconds: 3)));
           } catch (e) {
             if (e.toString().contains('Email not found')) {
               _registerNewUser(userDto);
@@ -332,16 +315,39 @@ class _SignupPage extends State<SignupPage> {
   }
 
   void _registerNewUser(UserDto userDto) async {
-    await userRepository.registerUser(userDto);
-    print("Registration successful.. ");
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        content: Text('Registration successful. Sign in with your credentials'),
-        backgroundColor: Colors.green,
-        duration: Duration(seconds: 2)));
-    await Future.delayed(const Duration(seconds: 2));
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => Login()),
-    );
+    UserDto? existingUser = await userFirebaseRepo.existingUser(userDto);
+    if (existingUser == null) {
+      await userRepository.registerUser(userDto);
+      userFirebaseRepo.saveUser(userDto);
+      print("Registration successful..  >>>>>>>>>>>>>>");
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text('Registration successful. Sign in with your credentials'),
+          backgroundColor: Colors.green,
+          duration: Duration(seconds: 2)));
+      await Future.delayed(const Duration(seconds: 2));
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => Login()),
+      );
+    } else {
+      print("Registration successful with cloud data >>>>>>>>>>>>>>>>.. ");
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text('You have already registered with spend-wise. Please login with your regular credentials'),
+          backgroundColor: Colors.amber,
+          duration: Duration(seconds: 5)));
+      await userRepository.registerUser(existingUser);
+      restoreDataFromFirebase();
+      _firstNameController.text = "";
+      _lastNameController.text = "";
+      _userIdController.text = "";
+      _passwordController.text = "";
+      _confirmPasswordController.text = "";
+      _emailController.text = "";
+
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => Login()),
+      );
+    }
   }
 }

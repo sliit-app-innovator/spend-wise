@@ -30,6 +30,7 @@ Future<void> backupSqliteToFirebase() async {
 
   // Backup new data
   for (var entry in newData) {
+    entry['isSynced'] = 1;
     await firebaseCollection.add(entry); // Add each row to Firestore
 
     int id = entry['id'];
