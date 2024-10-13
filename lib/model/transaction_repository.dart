@@ -58,18 +58,11 @@ class TransactionRepository {
   }
 
   // Retrieve all transactions
-  Future<List<TransactionDto>> getTransactions() async {
-    DateTime now = DateTime.now();
-    String startOfMonth = DateTime(now.year, now.month, 1).toString();
-    String endOfMonth = DateTime(now.year, now.month + 1, 0).toString();
-
+  Future<List<TransactionDto>> getTransactions(String from, String to, String user) async {
     Database db = await database;
     //db.delete('transactions');
     List<Map<String, dynamic>> result = await db.query('transactions',
-        // where: 'txnTime >= ? AND txnTime <= ?',
-        //  whereArgs: [startOfMonth, endOfMonth],
-        orderBy: 'txnTime DESC',
-        limit: 10);
+        where: 'userId = ? AND txnTime >= ? AND txnTime <= ?', whereArgs: [user, from, to], orderBy: 'txnTime DESC');
     return result.map((map) => TransactionDto.fromJson(map)).toList();
   }
 

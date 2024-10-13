@@ -128,7 +128,7 @@ class _HomePageState extends State<HomePage> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          'Summary',
+                          'Monthly Summary',
                           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
                         ),
                         Icon(Icons.summarize_outlined, color: AppColors.TABLE_HEADER_COLOR),
