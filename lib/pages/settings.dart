@@ -1,4 +1,5 @@
-import 'package:flutter/material.dart'; //SettingsPage
+import 'package:flutter/material.dart';
+import 'package:spend_wise/session/session_context.dart'; //SettingsPage
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -27,11 +28,10 @@ class UserSettingsPage extends StatefulWidget {
 }
 
 class _UserSettingsPageState extends State<UserSettingsPage> {
-  String _currencyType = 'USD';
+  String _currencyType = SessionContext().currencyType;
   bool _enableBackup = false;
-  List<String> _incomeTypes = ['Salary', 'Bonus', 'Freelance'];
-  List<String> _expenseTypes = ['Food', 'Transport', 'Entertainment'];
-
+  List<String> _incomeTypes = SessionContext().incomeSourceType;
+  List<String> _expenseTypes = SessionContext().expenseSourceType;
   final List<String> _availableCurrencies = ['USD', 'EUR', 'GBP', 'INR'];
   final TextEditingController _incomeTypeController = TextEditingController();
   final TextEditingController _expenseTypeController = TextEditingController();
@@ -41,8 +41,7 @@ class _UserSettingsPageState extends State<UserSettingsPage> {
   Widget build(BuildContext context) {
     return GestureDetector(
         onTap: () {
-          FocusScope.of(context)
-              .unfocus(); // Dismiss the keyboard when tapping outside
+          FocusScope.of(context).unfocus(); // Dismiss the keyboard when tapping outside
         },
         child: Scaffold(
           backgroundColor: const Color.fromARGB(255, 243, 243, 243),
@@ -62,13 +61,52 @@ class _UserSettingsPageState extends State<UserSettingsPage> {
             child: ListView(
               children: <Widget>[
                 // Currency Type
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.white,
+                        foregroundColor: Colors.brown,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8.0), // Rounded corners
+                          side: const BorderSide(color: Colors.red), // Border color
+                        ),
+                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10), // Button padding
+                      ),
+                      child: const Text(
+                        'Cancel',
+                        style: TextStyle(color: Colors.brown, fontSize: 16), // Customize the font size if needed
+                      ),
+                    ),
+                    const SizedBox(width: 15),
+                    ElevatedButton(
+                      onPressed: () {},
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.brown,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8.0), // Rounded corners
+                          side: const BorderSide(color: Colors.brown), // Border color
+                        ),
+                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10), // Button padding
+                      ),
+                      child: const Text(
+                        ' Save  ',
+                        style: TextStyle(color: Colors.white, fontSize: 16), // Customize the font size if needed
+                      ),
+                    )
+                  ],
+                ),
                 ListTile(
                   title: Text('Currency Type'),
                   subtitle: TextField(
-                    controller:
-                        _currencyController, // Controller for handling the input
+                    controller: _currencyController, // Controller for handling the input
                     decoration: InputDecoration(
-                      hintText: 'Enter Currency Type',
+                      hintText: _currencyType,
                     ),
                     onChanged: (String newValue) {
                       setState(() {

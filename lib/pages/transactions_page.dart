@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:spend_wise/container_page.dart';
-import 'package:spend_wise/pages/add_transaction_page.dart';
 import 'package:spend_wise/dto/transaction.dart';
-import 'package:spend_wise/pages/home_page.dart';
 import 'package:spend_wise/dto/user.dart';
 import 'package:spend_wise/model/transaction_repository.dart';
 import 'package:spend_wise/session/session_context.dart';
