@@ -32,6 +32,9 @@ class _TransactionHistoryPageState extends State<TransactionHistoryPage> {
   TextEditingController _toDateController = TextEditingController();
   bool isSwitched = false;
   List<Widget> widgetList = [];
+  List<Widget> widgetListTransactions = [];
+  List<Widget> widgetListSummary = [];
+  List<TransactionDto> transactions = [];
 
   // Function to show the date picker and set the selected date
   Future<void> _selectDate(BuildContext context, TextEditingController controller) async {
@@ -110,6 +113,22 @@ class _TransactionHistoryPageState extends State<TransactionHistoryPage> {
                   onChanged: (value) {
                     setState(() {
                       isSwitched = value;
+                      setState(() {
+                        if (transactions.isEmpty) {
+                          loadData();
+                        }
+                        if (isSwitched) {
+                          if (widgetListSummary.isEmpty) {
+                            processSummary(transactions);
+                          }
+                          widgetList = widgetListSummary;
+                        } else {
+                          if (widgetListTransactions.isEmpty) {
+                            processTransactionWidgets();
+                          }
+                          widgetList = widgetListTransactions;
+                        }
+                      });
                     });
                   },
                   activeTrackColor: const Color.fromARGB(255, 241, 197, 181),
@@ -169,23 +188,108 @@ class _TransactionHistoryPageState extends State<TransactionHistoryPage> {
   }
 
   void _searchTransaction() async {
-    if (_fromDateController.text == '' || _toDateController.text == '') {
+    try {
+      DateTime from = DateTime.parse(_fromDateController.text);
+      DateTime to = DateTime.parse(_toDateController.text);
+
+      if (from.isAfter(to)) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+            content: Text('From Date cannot be later than To Date'), backgroundColor: Colors.red, duration: Duration(seconds: 2)));
+      } else {
+        if (_fromDateController.text == '' || _toDateController.text == '') {
+          ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Please Select Duration'), backgroundColor: Colors.red, duration: Duration(seconds: 2)));
+        } else {
+          await processResponse();
+        }
+      }
+    } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Please Select Duration'), backgroundColor: Colors.red, duration: Duration(seconds: 2)));
-    } else {
-      List<TransactionDto> transactions = await _transactionRepository.getTransactions(
-          _fromDateController.text, _toDateController.text, SessionContext().userData.username);
-      List<Map<String, dynamic>> recentTxns = [];
-      transactions.forEach((tx) {
-        recentTxns.add({
-          'id': tx.id.toString(),
-          'widget': transactionItem(tx.id.toString(), tx.source, tx.type, tx.description, tx.txnTime, tx.amount, 'LKR', tx.attachmentUrl),
-        });
-      });
-      setState(() {
-        widgetList = recentTxns.map((txn) => txn['widget'] as Widget).toList();
-      });
     }
+  }
+
+  Future<void> processResponse() async {
+    await loadData();
+    if (transactions.isNotEmpty) {
+      List<Widget> recentTxns = processTransactionWidgets();
+      if (isSwitched) {
+        processSummary(transactions);
+        setState(() {
+          widgetListTransactions = recentTxns;
+          widgetList = widgetListSummary;
+        });
+      } else {
+        setState(() {
+          widgetListTransactions = recentTxns;
+          widgetList = widgetListTransactions;
+        });
+      }
+    } else {
+      setState(() {
+        widgetList = [];
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('No traansaction Available'), backgroundColor: Colors.green, duration: Duration(seconds: 2)));
+    }
+  }
+
+  List<Widget> processTransactionWidgets() {
+    List<Widget> recentTxns = transactions.map((tx) {
+      return transactionItem(tx.id.toString(), tx.source, tx.type, tx.description, tx.txnTime, tx.amount, 'LKR', tx.attachmentUrl);
+    }).toList();
+    return recentTxns;
+  }
+
+  Future<void> loadData() async {
+    transactions =
+        await _transactionRepository.getTransactions(_fromDateController.text, _toDateController.text, SessionContext().userData.username);
+  }
+
+  void processSummary(List<TransactionDto> transactions) {
+    Map<String, double> summaryMap = {};
+    transactions.forEach((item) {
+      if (summaryMap.containsKey(item.source)) {
+        // If it exists, add the amount to the existing value
+        summaryMap[item.source] = summaryMap[item.source]! + item.amount; // Use '!' to assert non-null
+      } else {
+        // If it doesn't exist, add the new key and amount
+        summaryMap[item.source] = item.amount;
+      }
+    });
+    summaryMap.forEach((key, value) {
+      print('Category: $key, Amount: $value');
+      widgetListSummary.add(summaryItem(key, value));
+    });
+  }
+
+  Widget summaryItem(String source, double amount) {
+    Icon bullet = Icon(Icons.arrow_downward_outlined, color: Colors.green);
+    if (SessionContext().expenseType(source)) {
+      bullet = Icon(Icons.arrow_upward_outlined, color: Colors.red);
+    }
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 10.0),
+      child: Row(
+        children: [
+          bullet,
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                source,
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ],
+          ),
+          const Spacer(),
+          Text(
+            amount.toStringAsFixed(2),
+            style: const TextStyle(fontWeight: FontWeight.bold),
+          ),
+        ],
+      ),
+    );
   }
 
   Widget transactionItem(
