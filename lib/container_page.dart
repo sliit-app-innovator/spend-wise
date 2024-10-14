@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:spend_wise/dto/user.dart';
 import 'package:spend_wise/main.dart';
@@ -28,10 +30,41 @@ class _MyAppState extends State<MyApp> {
   File? _imageFile;
   final ImagePicker _picker = ImagePicker();
   int _selectedIndex = 0;
+  Timer? _inactivityTimer;
+  final Duration _logoutTime = Duration(minutes: 10); // Set your timeout duration here
+
   @override
   void initState() {
     super.initState();
     _loadProfileImage();
+    _startInactivityTimer();
+  }
+
+  @override
+  void dispose() {
+    _inactivityTimer?.cancel(); // Cancel the timer when the widget is disposed
+    super.dispose();
+  }
+
+  // Function to start or reset the inactivity timer
+  void _startInactivityTimer() {
+    // If the timer is already running, cancel it
+    if (_inactivityTimer != null) {
+      _inactivityTimer!.cancel();
+    }
+
+    // Start a new timer
+    _inactivityTimer = Timer(_logoutTime, () {
+      _navigateToLogout();
+    });
+  }
+
+  // Function to navigate to the logout page
+  void _navigateToLogout() {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => Login()),
+    );
   }
 
   void _onItemTapped(int index) {

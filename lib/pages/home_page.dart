@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:spend_wise/dto/transaction.dart';
 import 'package:spend_wise/pages/add_transaction_page.dart';
 import 'package:spend_wise/model/transaction_repository.dart';
 import 'package:spend_wise/dto/mothly_transaction_summary_view.dart';
 import 'package:spend_wise/session/session_context.dart';
 import 'package:spend_wise/utils/colors.dart';
-import 'package:fl_chart/fl_chart.dart';
 
 class HomePage extends StatefulWidget {
   //const HomePage({super.key});
@@ -189,7 +187,7 @@ class _HomePageState extends State<HomePage> {
       ), // Show the FAB only on the HomePage
     );
   }
-
+/*
   List<BarChartGroupData> _generateBarGroups(Map<String, double> dataMap) {
     return List.generate(dataMap.length, (index) {
       final value = dataMap.values.elementAt(index);
@@ -205,7 +203,7 @@ class _HomePageState extends State<HomePage> {
         ],
       );
     });
-  }
+  }*/
 
   Color _getRandomColor(String key) {
     return Colors.primaries[key.hashCode % Colors.primaries.length];
