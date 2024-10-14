@@ -25,8 +25,8 @@ class _AddExpensesPage extends State<AddTransactionPage> {
   String _selectedType = 'Select'; // Default type
   String _selectedSourceType = 'Select'; // Default type
   List<String> _selectedSourceTypes = [];
-  List<String> incomeSourceType = SessionContext().incomeSourceType;
-  List<String> expenseSourceType = SessionContext().expenseSourceType;
+  List<String> incomeSourceType = SessionContext().getIncomeTypes();
+  List<String> expenseSourceType = SessionContext().getExpendTypes();
   String _description = '';
   double _amount = 0.0;
   File? _imageFile;

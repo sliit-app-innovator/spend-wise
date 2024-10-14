@@ -1,3 +1,6 @@
+import 'dart:ffi';
+
+import 'package:spend_wise/dto/user%20configs.dart';
 import 'package:spend_wise/dto/user.dart';
 
 class SessionContext {
@@ -8,9 +11,10 @@ class SessionContext {
       password: '',
       email: ''); // Make it nullable if you want to initialize it later
 
-  List<String> incomeSourceType = ['Select', 'Salary', 'Invetment', 'Interest'];
-  List<String> expenseSourceType = [
-    'Select',
+  List<UserConfigs> userConfigs = [];
+
+  final List<String> incomeSourceType = ['Salary', 'Invetment', 'Interest'];
+  final List<String> expenseSourceType = [
     'Food & Groceries',
     'Transportation',
     'Utilities',
@@ -20,8 +24,8 @@ class SessionContext {
     'Education'
   ];
 
-  String currencyType = 'USD';
-  bool enableCloudBackup = true;
+  final String currencyType = 'LKR';
+  final bool enableCloudBackup = true;
   // Private constructor
   SessionContext._privateConstructor();
 
@@ -38,7 +42,70 @@ class SessionContext {
     this.userData = userData; // Correct the parameter reference
   }
 
+  void setUserConfigs({required List<UserConfigs> userConfigs}) {
+    print("DEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEWWWWWWWWWWWWWWWL" + userConfigs.toString());
+    this.userConfigs = userConfigs;
+  }
+
   bool expenseType(String source) {
     return expenseSourceType.contains(source);
+  }
+
+  List<UserConfigs> getUserConfigs() {
+    return userConfigs;
+  }
+
+  List<String> getIncomeTypes() {
+    if (userConfigs.isEmpty) {
+      return incomeSourceType;
+    } else {
+      UserConfigs? targetConfig = userConfigs.firstWhere((config) => config.name == 'incomeList');
+
+      // If the record is found and the value is not null, split the value into a list
+      if (targetConfig.value.isNotEmpty) {
+        return targetConfig.value.split(',');
+      }
+
+      // Return an empty list if the record is not found or value is empty
+      return [];
+    }
+  }
+
+  List<String> getExpendTypes() {
+    if (userConfigs.isEmpty) {
+      return expenseSourceType;
+    } else {
+      UserConfigs? targetConfig = userConfigs.firstWhere((config) => config.name == 'expenseList');
+
+      // If the record is found and the value is not null, split the value into a list
+      if (targetConfig.value.isNotEmpty) {
+        return targetConfig.value.split(',');
+      }
+
+      // Return an empty list if the record is not found or value is empty
+      return [];
+    }
+  }
+
+  String getCurrency() {
+    if (userConfigs.isEmpty) {
+      return currencyType;
+    } else {
+      UserConfigs? targetConfig = userConfigs.firstWhere((config) => config.name == 'currency');
+      return targetConfig.value;
+    }
+  }
+
+  bool useBackup() {
+    if (userConfigs.isEmpty) {
+      return enableCloudBackup;
+    } else {
+      UserConfigs? targetConfig = userConfigs.firstWhere((config) => config.name == 'useBackup');
+      return targetConfig.value.toLowerCase() == 'true';
+    }
+  }
+
+  void reset({required List<UserConfigs> userConfigs}) {
+    userConfigs = [];
   }
 }

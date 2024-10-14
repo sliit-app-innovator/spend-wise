@@ -48,7 +48,7 @@ class _HomePageState extends State<HomePage> {
             double totalExp = 0;
             double totalInc = 0;
             double balance = 0;
-            String currency = "LKR";
+            String currency = SessionContext().getCurrency();
 
             for (int i = 0; i < summary.trasactions.length && i < 10; i++) {
               recentTxns.add(transactionItem(summary.trasactions[i].source, summary.trasactions[i].txnTime, summary.trasactions[i].amount,

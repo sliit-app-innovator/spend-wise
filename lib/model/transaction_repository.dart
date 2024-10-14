@@ -62,7 +62,7 @@ class TransactionRepository {
     Database db = await database;
     //db.delete('transactions');
     List<Map<String, dynamic>> result = await db.query('transactions',
-        where: 'userId = ? AND txnTime >= ? AND txnTime <= ?', whereArgs: [user, from, to], orderBy: 'txnTime DESC');
+        where: 'isDeleted = ? AND userId = ? AND txnTime >= ? AND txnTime <= ?', whereArgs: [0, user, from, to], orderBy: 'txnTime DESC');
     return result.map((map) => TransactionDto.fromJson(map)).toList();
   }
 
@@ -77,14 +77,20 @@ class TransactionRepository {
   }
 
   Stream<List<TransactionDto>> getAllTransactionsStreamSQLLimit(String user) {
+    // Get current date
     DateTime now = DateTime.now();
-    String startOfMonth = DateTime(now.year, now.month, 1).toString();
-    String endOfMonth = DateTime(now.year, now.month + 1, 0).toString();
+    // Get start date (first day of current month)
+    DateTime startDate = DateTime(now.year, now.month, 1);
+    // Get end date (last day of current month)
+    DateTime endDate = DateTime(now.year, now.month + 1, 1).subtract(Duration(days: 1));
 
     return Stream.fromFuture(() async {
       Database db = await database;
-      List<Map<String, dynamic>> result =
-          await db.query('transactions', where: 'isDeleted = ? AND userId = ?', whereArgs: [0, user], orderBy: 'txnTime DESC', limit: 1000);
+      List<Map<String, dynamic>> result = await db.query('transactions',
+          where: 'isDeleted = ? AND userId = ? AND txnTime >= ? AND txnTime <= ? ',
+          whereArgs: [0, user, startDate.toIso8601String(), endDate.toIso8601String()],
+          orderBy: 'txnTime DESC',
+          limit: 1000);
       return result.map((map) => TransactionDto.fromJson(map)).toList();
     }());
   }

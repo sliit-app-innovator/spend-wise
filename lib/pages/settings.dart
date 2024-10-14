@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:spend_wise/session/session_context.dart'; //SettingsPage
+import 'package:spend_wise/dto/user%20configs.dart';
+import 'package:spend_wise/model/user_configs_repository.dart';
+import 'package:spend_wise/session/session_context.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -28,14 +30,14 @@ class UserSettingsPage extends StatefulWidget {
 }
 
 class _UserSettingsPageState extends State<UserSettingsPage> {
-  String _currencyType = SessionContext().currencyType;
-  bool _enableBackup = false;
-  List<String> _incomeTypes = SessionContext().incomeSourceType;
-  List<String> _expenseTypes = SessionContext().expenseSourceType;
-  final List<String> _availableCurrencies = ['USD', 'EUR', 'GBP', 'INR'];
+  String _currencyType = SessionContext().getCurrency();
+  bool _enableBackup = SessionContext().useBackup();
+  final List<String> _incomeTypes = SessionContext().getIncomeTypes();
+  final List<String> _expenseTypes = SessionContext().getExpendTypes();
   final TextEditingController _incomeTypeController = TextEditingController();
   final TextEditingController _expenseTypeController = TextEditingController();
   final TextEditingController _currencyController = TextEditingController();
+  UserConfigsRepository userConfRepository = UserConfigsRepository();
 
   @override
   Widget build(BuildContext context) {
@@ -65,9 +67,7 @@ class _UserSettingsPageState extends State<UserSettingsPage> {
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     ElevatedButton(
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
+                      onPressed: reset,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.white,
                         foregroundColor: Colors.brown,
@@ -78,13 +78,13 @@ class _UserSettingsPageState extends State<UserSettingsPage> {
                         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10), // Button padding
                       ),
                       child: const Text(
-                        'Cancel',
+                        'Reset',
                         style: TextStyle(color: Colors.brown, fontSize: 16), // Customize the font size if needed
                       ),
                     ),
                     const SizedBox(width: 15),
                     ElevatedButton(
-                      onPressed: () {},
+                      onPressed: saveUserSettings,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.brown,
                         foregroundColor: Colors.white,
@@ -202,5 +202,36 @@ class _UserSettingsPageState extends State<UserSettingsPage> {
             ),
           ),
         ));
+  }
+
+  void saveUserSettings() {
+    List<UserConfigs> configs = [];
+    // Set currecny
+    configs.add(UserConfigs(
+        userId: SessionContext().userData.username,
+        name: "currency",
+        value: _currencyController.text.isEmpty ? SessionContext().currencyType : _currencyController.text));
+    configs.add(UserConfigs(userId: SessionContext().userData.username, name: "useBackup", value: _enableBackup.toString()));
+    configs.add(UserConfigs(userId: SessionContext().userData.username, name: "incomeList", value: _incomeTypes.join(',')));
+    configs.add(UserConfigs(userId: SessionContext().userData.username, name: "expenseList", value: _expenseTypes.join(',')));
+    SessionContext().setUserConfigs(userConfigs: configs);
+    userConfRepository.insertConfigs(configs);
+  }
+
+  void reset() {
+    List<UserConfigs> configs = [];
+
+    /* configs.add(UserConfigs(username: SessionContext().userData.username, name: "currency", value: SessionContext().currencyType));
+    configs.add(
+        UserConfigs(username: SessionContext().userData.username, name: "useBackup", value: SessionContext().enableCloudBackup.toString()));
+    configs.add(
+        UserConfigs(username: SessionContext().userData.username, name: "incomeList", value: SessionContext().incomeSourceType.join(',')));
+    configs.add(UserConfigs(
+        username: SessionContext().userData.username, name: "expenseList", value: SessionContext().expenseSourceType.join(',')));
+    SessionContext().setUserConfigs(userConfigs: configs);*/
+    SessionContext().reset(userConfigs: []);
+    print("Resetting too default setting" + SessionContext().getIncomeTypes().toString());
+    userConfRepository.deleteUserConfigs(SessionContext().userData.username);
+    Navigator.pop(context);
   }
 }
