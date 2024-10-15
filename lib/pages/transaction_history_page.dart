@@ -98,7 +98,7 @@ class _TransactionHistoryPageState extends State<TransactionHistoryPage> {
                 ),
               ],
             ),
-            SizedBox(height: 20.0), // Spacing between rows
+            SizedBox(height: 15.0), // Spacing between rows
 
             // Radio buttons in a row
             Row(
@@ -136,7 +136,7 @@ class _TransactionHistoryPageState extends State<TransactionHistoryPage> {
                 ),
                 const SizedBox(
                   width: 10,
-                  height: 8,
+                  height: 5,
                 ),
                 ElevatedButton(
                   onPressed: _searchTransaction,
@@ -149,9 +149,12 @@ class _TransactionHistoryPageState extends State<TransactionHistoryPage> {
                     ),
                     padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15), // Button padding
                   ),
-                  child: const Text(
-                    'Search Transaction',
-                    style: TextStyle(color: Colors.white, fontSize: 16), // Customize the font size if needed
+                  child: Container(
+                    margin: EdgeInsets.all(0.0),
+                    child: const Text(
+                      'Search',
+                      style: TextStyle(color: Colors.white, fontSize: 15), // Customize the font size if needed
+                    ),
                   ),
                 )
               ],

@@ -83,6 +83,27 @@ class _AddExpensesPage extends State<AddTransactionPage> {
                   key: _formKey,
                   child: Column(
                     children: [
+                      Row(mainAxisAlignment: MainAxisAlignment.end, children: [
+                        // SizedBox(
+                        //   width: 180,
+                        //    height: 50, // Set the desired fixed width here
+                        ElevatedButton(
+                          onPressed: _addTransaction,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.brown,
+                            foregroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8.0), // Rounded corners
+                              side: const BorderSide(color: Colors.brown), // Border color
+                            ),
+                            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15), // Button padding
+                          ),
+                          child: const Text(
+                            'Add Transaction',
+                            style: TextStyle(color: Colors.white, fontSize: 16), // Customize the font size if needed
+                          ),
+                        ),
+                      ]),
                       // Dropdown for Income/Expense selection
                       DropdownButtonFormField<String>(
                         value: _selectedType,
@@ -175,24 +196,6 @@ class _AddExpensesPage extends State<AddTransactionPage> {
                               : const Text('Add an attachment'),
                         ],
                       ),
-                      Row(mainAxisAlignment: MainAxisAlignment.end, children: [
-                        ElevatedButton(
-                          onPressed: _addTransaction,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.brown,
-                            foregroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8.0), // Rounded corners
-                              side: const BorderSide(color: Colors.brown), // Border color
-                            ),
-                            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15), // Button padding
-                          ),
-                          child: const Text(
-                            'Add Transaction',
-                            style: TextStyle(color: Colors.white, fontSize: 16), // Customize the font size if needed
-                          ),
-                        ),
-                      ]),
                     ],
                   ),
                 ),
