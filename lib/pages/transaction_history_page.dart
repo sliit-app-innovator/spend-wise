@@ -9,6 +9,7 @@ import 'package:spend_wise/pages/home_page.dart';
 import 'package:spend_wise/dto/user.dart';
 import 'package:spend_wise/model/transaction_repository.dart';
 import 'package:spend_wise/session/session_context.dart';
+import 'package:spend_wise/utils/charts/pie_chart.dart';
 import 'package:spend_wise/utils/colors.dart';
 import 'dart:io';
 
@@ -35,6 +36,7 @@ class _TransactionHistoryPageState extends State<TransactionHistoryPage> {
   List<Widget> widgetListTransactions = [];
   List<Widget> widgetListSummary = [];
   List<TransactionDto> transactions = [];
+  Map<String, double> expenseChartMap = {};
 
   // Function to show the date picker and set the selected date
   Future<void> _selectDate(BuildContext context, TextEditingController controller) async {
@@ -183,7 +185,34 @@ class _TransactionHistoryPageState extends State<TransactionHistoryPage> {
             ),
             Expanded(
               child: ListView(children: widgetList),
-            )
+            ),
+            const SizedBox(
+              width: 10,
+              height: 20,
+            ),
+            Container(
+              width: double.infinity,
+              padding: EdgeInsets.all(16.0),
+              decoration: BoxDecoration(
+                color: const Color.fromARGB(255, 240, 215, 206),
+                borderRadius: BorderRadius.circular(15),
+              ),
+              child: const Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    "Your Expenses Summary",
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                  ),
+                  Icon(Icons.list_alt_outlined, color: AppColors.TABLE_HEADER_COLOR),
+                ],
+              ),
+            ),
+            const SizedBox(
+              width: 10,
+              height: 20,
+            ),
+            Expanded(child: PieChart(dataMap: expenseChartMap))
           ],
         ),
       ),
@@ -214,6 +243,7 @@ class _TransactionHistoryPageState extends State<TransactionHistoryPage> {
 
   Future<void> processResponse() async {
     await loadData();
+    processExpenceChartData(transactions);
     if (transactions.isNotEmpty) {
       List<Widget> recentTxns = processTransactionWidgets();
       if (isSwitched) {
@@ -263,6 +293,22 @@ class _TransactionHistoryPageState extends State<TransactionHistoryPage> {
     summaryMap.forEach((key, value) {
       print('Category: $key, Amount: $value');
       widgetListSummary.add(summaryItem(key, value));
+    });
+  }
+
+  void processExpenceChartData(List<TransactionDto> transactions) {
+    Map<String, double> chartMap = {};
+    transactions.forEach((item) {
+      if (chartMap.containsKey(item.source) && SessionContext().expenseType(item.source)) {
+        // If it exists, add the amount to the existing value
+        chartMap[item.source] = chartMap[item.source]! + item.amount; // Use '!' to assert non-null
+      } else if (SessionContext().expenseType(item.source)) {
+        // If it doesn't exist, add the new key and amount
+        chartMap[item.source] = item.amount;
+      }
+    });
+    setState(() {
+      expenseChartMap = chartMap;
     });
   }
 
