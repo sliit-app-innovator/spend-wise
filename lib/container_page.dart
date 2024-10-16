@@ -43,14 +43,14 @@ class _MyAppState extends State<MyApp> {
     if (SessionContext().useBackup()) {
       print(" >>>>>>>>>>>>>>>>> Triggering Background Task.....");
       backupSqliteToFirebase();
-      /*     Workmanager().initialize(callbackDispatcher, isInDebugMode: true);
+      Workmanager().initialize(callbackDispatcher, isInDebugMode: true);
       Workmanager().registerPeriodicTask(
         "txnBackup", // Unique task name
         "TransactionFirebaseBackup", // Task name
         frequency: const Duration(minutes: 15), // Frequency of the backup
-      );*/
+      );
     } else {
-      print("OOOOOOOOOOOOOOOOOOFFLINE  ");
+      print("User is not enabnled for backup");
     }
   }
 
