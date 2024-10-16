@@ -2,6 +2,7 @@ import 'dart:ffi';
 
 import 'package:spend_wise/dto/user%20configs.dart';
 import 'package:spend_wise/dto/user.dart';
+import 'package:spend_wise/utils/defults.dart';
 
 class SessionContext {
   UserDto userData = UserDto(
@@ -13,19 +14,12 @@ class SessionContext {
 
   List<UserConfigs> userConfigs = [];
 
-  final List<String> incomeSourceType = ['Salary', 'Invetment', 'Interest'];
-  final List<String> expenseSourceType = [
-    'Food & Groceries',
-    'Transportation',
-    'Utilities',
-    'Entertainment',
-    'Dining Out',
-    'Travel',
-    'Education'
-  ];
+  // Setting defult
+  List<String> incomeSourceType = AppDefaults().incomeSourceType;
+  List<String> expenseSourceType = AppDefaults().expenseSourceType;
+  final String currencyType = AppDefaults().currencyType;
+  final bool enableCloudBackup = AppDefaults().enableCloudBackup;
 
-  final String currencyType = 'LKR';
-  final bool enableCloudBackup = true;
   // Private constructor
   SessionContext._privateConstructor();
 
@@ -43,7 +37,6 @@ class SessionContext {
   }
 
   void setUserConfigs({required List<UserConfigs> userConfigs}) {
-    print("DEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEWWWWWWWWWWWWWWWL" + userConfigs.toString());
     this.userConfigs = userConfigs;
   }
 
@@ -57,6 +50,7 @@ class SessionContext {
 
   List<String> getIncomeTypes() {
     if (userConfigs.isEmpty) {
+      print("KKKKKKKKKKKKKKKk" + incomeSourceType.toString());
       return incomeSourceType;
     } else {
       UserConfigs? targetConfig = userConfigs.firstWhere((config) => config.name == 'incomeList');
@@ -105,7 +99,8 @@ class SessionContext {
     }
   }
 
-  void reset({required List<UserConfigs> userConfigs}) {
+  void reset() {
     userConfigs = [];
+    print("CCCCCCCCCCCCCCCCC0" + getIncomeTypes().toString());
   }
 }

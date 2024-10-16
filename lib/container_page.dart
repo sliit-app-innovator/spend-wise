@@ -12,6 +12,8 @@ import 'pages/transactions_page.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:workmanager/workmanager.dart';
+import 'package:spend_wise/background/flutter_sync.dart';
 
 /*void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -31,13 +33,20 @@ class _MyAppState extends State<MyApp> {
   final ImagePicker _picker = ImagePicker();
   int _selectedIndex = 0;
   Timer? _inactivityTimer;
-  final Duration _logoutTime = Duration(minutes: 10); // Set your timeout duration here
+  final Duration _logoutTime = Duration(minutes: 30); // Set your timeout duration here
 
   @override
   void initState() {
     super.initState();
     _loadProfileImage();
     _startInactivityTimer();
+
+    /*   Workmanager().initialize(callbackDispatcher, isInDebugMode: true);
+    Workmanager().registerPeriodicTask(
+      "txnBackup", // Unique task name
+      "TransactionFirebaseBackup", // Task name
+      frequency: const Duration(minutes: 15), // Frequency of the backup
+    );*/
   }
 
   @override

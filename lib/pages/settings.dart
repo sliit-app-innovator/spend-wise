@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:spend_wise/dto/user%20configs.dart';
 import 'package:spend_wise/model/user_configs_repository.dart';
 import 'package:spend_wise/session/session_context.dart';
+import 'package:spend_wise/utils/defults.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -32,12 +33,19 @@ class UserSettingsPage extends StatefulWidget {
 class _UserSettingsPageState extends State<UserSettingsPage> {
   String _currencyType = SessionContext().getCurrency();
   bool _enableBackup = SessionContext().useBackup();
-  final List<String> _incomeTypes = SessionContext().getIncomeTypes();
-  final List<String> _expenseTypes = SessionContext().getExpendTypes();
+  List<String> _incomeTypes = [];
+  List<String> _expenseTypes = [];
   final TextEditingController _incomeTypeController = TextEditingController();
   final TextEditingController _expenseTypeController = TextEditingController();
   final TextEditingController _currencyController = TextEditingController();
   UserConfigsRepository userConfRepository = UserConfigsRepository();
+
+  @override
+  void initState() {
+    super.initState();
+    _incomeTypes = SessionContext().getIncomeTypes();
+    _expenseTypes = SessionContext().getExpendTypes();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -216,22 +224,28 @@ class _UserSettingsPageState extends State<UserSettingsPage> {
     configs.add(UserConfigs(userId: SessionContext().userData.username, name: "expenseList", value: _expenseTypes.join(',')));
     SessionContext().setUserConfigs(userConfigs: configs);
     userConfRepository.insertConfigs(configs);
+    ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Updated Settings Successfully'), backgroundColor: Colors.green, duration: Duration(seconds: 2)));
   }
 
   void reset() {
     List<UserConfigs> configs = [];
-
-    /* configs.add(UserConfigs(username: SessionContext().userData.username, name: "currency", value: SessionContext().currencyType));
+    configs.add(UserConfigs(userId: SessionContext().userData.username, name: "currency", value: AppDefaults().currencyType));
+    configs
+        .add(UserConfigs(userId: SessionContext().userData.username, name: "useBackup", value: AppDefaults().enableCloudBackup.toString()));
+    configs
+        .add(UserConfigs(userId: SessionContext().userData.username, name: "incomeList", value: AppDefaults().incomeSourceType.join(',')));
     configs.add(
-        UserConfigs(username: SessionContext().userData.username, name: "useBackup", value: SessionContext().enableCloudBackup.toString()));
-    configs.add(
-        UserConfigs(username: SessionContext().userData.username, name: "incomeList", value: SessionContext().incomeSourceType.join(',')));
-    configs.add(UserConfigs(
-        username: SessionContext().userData.username, name: "expenseList", value: SessionContext().expenseSourceType.join(',')));
-    SessionContext().setUserConfigs(userConfigs: configs);*/
-    SessionContext().reset(userConfigs: []);
-    print("Resetting too default setting" + SessionContext().getIncomeTypes().toString());
-    userConfRepository.deleteUserConfigs(SessionContext().userData.username);
-    Navigator.pop(context);
+        UserConfigs(userId: SessionContext().userData.username, name: "expenseList", value: AppDefaults().expenseSourceType.join(',')));
+    SessionContext().setUserConfigs(userConfigs: configs);
+    userConfRepository.insertConfigs(configs);
+    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text('Reset to defualt Settings Successfully'), backgroundColor: Colors.green, duration: Duration(seconds: 2)));
+    setState(() {
+      _incomeTypes = AppDefaults().incomeSourceType;
+      _expenseTypes = AppDefaults().expenseSourceType;
+      _currencyType = AppDefaults().currencyType;
+      _enableBackup = AppDefaults().enableCloudBackup;
+    });
   }
 }
