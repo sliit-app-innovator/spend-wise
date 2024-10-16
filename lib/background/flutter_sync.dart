@@ -116,7 +116,11 @@ Future<void> backupSqliteToFirebase() async {
       print('Failed to delete transaction ${record['id'].toString()} from Firebase: $e');
     }
   }
-  await backupUserLogins();
+  try {
+    await backupUserLogins();
+  } catch (e) {
+    print("Error during user backup: $e");
+  }
   print('Backup to Firebase complete');
 }
 
