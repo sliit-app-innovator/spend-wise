@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:spend_wise/dto/transaction.dart';
+import 'package:spend_wise/dto/user.dart';
+import 'package:spend_wise/model/transaction_repository_firebase.dart';
 import 'package:workmanager/workmanager.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:spend_wise/model/user_configs_repository_firebase.dart';
 
 class FlutterSyncService {}
 
@@ -14,47 +18,72 @@ void callbackDispatcher() {
   });
 }
 
-Future<void> backupSqliteToFirebase() async {
-  // Open the SQLite database
-  print('Start backing ip to Firebase complete >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>');
+Future<void> backupUserLogins() async {
+  print('Start user logins backing up to Firebase >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>');
   await Firebase.initializeApp();
-  final database = await openDatabase(
-    join(await getDatabasesPath(), 'transactions.db'),
-  );
+  String path = join(await getDatabasesPath(), 'transactions.db');
+  final database = await openDatabase(path, version: 6);
 
+  try {
+    // Fetch user data from SQLite
+    final List<Map<String, dynamic>> users = await database.query('user');
+    final CollectionReference userCollection = FirebaseFirestore.instance.collection('user');
+
+    for (var user in users) {
+      UserDto userDto = UserDto.fromJson(user);
+      // Delete existing documents with the same username
+      QuerySnapshot snapshot = await userCollection.where('username', isEqualTo: userDto.username).get();
+
+      for (var doc in snapshot.docs) {
+        await doc.reference.delete();
+      }
+
+      // Add the new user data to Firebase
+      await userCollection.add(userDto.toJson());
+    }
+  } catch (e) {
+    print("Error during backup: $e");
+  }
+}
+
+Future<void> backupSqliteToFirebase() async {
+  FirebaseRepository firebaseRepository = FirebaseRepository();
+  // Open the SQLite database
+  print('Start backing ip to Firebase >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>');
+  await Firebase.initializeApp();
+  String path = join(await getDatabasesPath(), 'transactions.db');
+  final database = await openDatabase(path, version: 6);
   // Query all rows from the table you want to back up
   final List<Map<String, dynamic>> newData = await database.query('transactions', where: "isSynced = ?", whereArgs: [0]);
 
   // Use Firebase Firestore to backup the data
+  FirebaseFirestore firestore = FirebaseFirestore.instance;
+  firestore.settings = Settings(persistenceEnabled: true);
+
   final CollectionReference firebaseCollection = FirebaseFirestore.instance.collection('transactions');
+  try {
+    // Backup new data
+    for (var entry in newData) {
+      TransactionDto txn = TransactionDto.fromJson(entry);
+      saveTransaction(txn);
+      int id = entry['id'];
 
-  // Backup new data
-  for (var entry in newData) {
-    entry['isSynced'] = 1;
-    await firebaseCollection.add(entry); // Add each row to Firestore
-
-    int id = entry['id'];
-    await database.update(
-      'transactions',
-      {'isSynced': 1},
-      where: 'id = ?',
-      whereArgs: [id],
-    );
+      await database.update(
+        'transactions',
+        {'isSynced': 1},
+        where: 'id = ?',
+        whereArgs: [id],
+      );
+    }
+  } catch (e) {
+    print("Error during backup: $e");
   }
-
-  print('Completed updating New Record to FIrebase >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>');
-
   // Open the SQLite database
-  print('Start updating  ip Deleted records >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>');
-
   final List<Map<String, dynamic>> deletedRecords =
       await database.query('transactions', where: "isDeleted = ? AND isSynced = ?", whereArgs: [1, 1]);
 
-  print('deleted Records counts >>>>>>>>>>>>>>>>>>>>>>>>>> ' + deletedRecords.length.toString());
-
   // Sync deleted record with firebase
   for (var record in deletedRecords) {
-    print('Each deleted Record  >>>>>>>>>>>>>>>>>>>>>>>>>> ' + record['id'].toString());
     try {
       // Assuming you have a unique transaction ID (e.g., 'transactionId')
       int id = record['id'];
@@ -87,11 +116,11 @@ Future<void> backupSqliteToFirebase() async {
       print('Failed to delete transaction ${record['id'].toString()} from Firebase: $e');
     }
   }
-
+  await backupUserLogins();
   print('Backup to Firebase complete');
 }
 
-Future<void> restoreDataFromFirebase() async {
+Future<void> restoreDataFromFirebase(String userId) async {
   // Open SQLite database
   await Firebase.initializeApp();
   final database = await openDatabase(
@@ -99,12 +128,12 @@ Future<void> restoreDataFromFirebase() async {
   );
 
   // Clear existing data in the SQLite table
-  await database.delete('transactions');
+  await database.delete('transactions', where: "userId = ?", whereArgs: [userId]);
 
   // Fetch data from Firebase Firestore
   final CollectionReference firebaseCollection = FirebaseFirestore.instance.collection('transactions');
 
-  QuerySnapshot snapshot = await firebaseCollection.get();
+  QuerySnapshot snapshot = await firebaseCollection.where('userId', isEqualTo: userId).get();
 
   for (var doc in snapshot.docs) {
     // Insert data into SQLite database

@@ -7,7 +7,6 @@ import 'package:spend_wise/model/user_configs_repository.dart';
 import 'package:spend_wise/model/user_repository.dart';
 import 'package:spend_wise/pages/signup_page.dart';
 import 'package:spend_wise/session/session_context.dart';
-import 'package:workmanager/workmanager.dart';
 import 'package:spend_wise/background/flutter_sync.dart';
 import 'package:spend_wise/model/user_configs_repository_firebase.dart';
 
@@ -16,12 +15,6 @@ void main() async {
   UserRepository userRepository = UserRepository();
   await userRepository.database;
   await Firebase.initializeApp();
-  Workmanager().initialize(callbackDispatcher, isInDebugMode: true);
-  Workmanager().registerPeriodicTask(
-    "txnBackup", // Unique task name
-    "TransactionFirebaseBackup", // Task name
-    frequency: const Duration(minutes: 15), // Frequency of the backup
-  );
   runApp(Login());
 }
 
@@ -80,7 +73,7 @@ class _LoginPageState extends State<LoginPage> {
             session.updateUserData(userData: existingUser);
             List<UserConfigs> userConfigs = await _userConfigsRepository.getUserConfigs(existingUser.username);
             session.setUserConfigs(userConfigs: userConfigs);
-            restoreDataFromFirebase();
+            restoreDataFromFirebase(userId);
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(builder: (context) => MyApp()),

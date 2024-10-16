@@ -1,10 +1,17 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:spend_wise/dto/transaction.dart';
 import 'package:spend_wise/dto/user.dart';
 
 class FirebaseUserConfigsRepository {
   Future<void> saveUser(UserDto user) async {
     CollectionReference userCollection = FirebaseFirestore.instance.collection('user');
     userCollection.add(user.toJson());
+    print("Storing User in cloude >>>>>>>>>>>>>>>>>>>>>>>");
+  }
+
+  Future<void> saveTransactionsFb(TransactionDto txt) async {
+    CollectionReference txtCollection = FirebaseFirestore.instance.collection('transactions');
+    txtCollection.add(txt.toJson());
     print("Storing User in cloude >>>>>>>>>>>>>>>>>>>>>>>");
   }
 

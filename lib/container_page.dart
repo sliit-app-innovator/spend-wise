@@ -33,20 +33,25 @@ class _MyAppState extends State<MyApp> {
   final ImagePicker _picker = ImagePicker();
   int _selectedIndex = 0;
   Timer? _inactivityTimer;
-  final Duration _logoutTime = Duration(minutes: 30); // Set your timeout duration here
+  final Duration _logoutTime = Duration(minutes: 60); // Set your timeout duration here
 
   @override
   void initState() {
     super.initState();
     _loadProfileImage();
     _startInactivityTimer();
-
-    /*   Workmanager().initialize(callbackDispatcher, isInDebugMode: true);
-    Workmanager().registerPeriodicTask(
-      "txnBackup", // Unique task name
-      "TransactionFirebaseBackup", // Task name
-      frequency: const Duration(minutes: 15), // Frequency of the backup
-    );*/
+    if (SessionContext().useBackup()) {
+      print(" >>>>>>>>>>>>>>>>> Triggering Background Task.....");
+      backupSqliteToFirebase();
+      /*     Workmanager().initialize(callbackDispatcher, isInDebugMode: true);
+      Workmanager().registerPeriodicTask(
+        "txnBackup", // Unique task name
+        "TransactionFirebaseBackup", // Task name
+        frequency: const Duration(minutes: 15), // Frequency of the backup
+      );*/
+    } else {
+      print("OOOOOOOOOOOOOOOOOOFFLINE  ");
+    }
   }
 
   @override

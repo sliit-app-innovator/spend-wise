@@ -1,6 +1,6 @@
 class AppDefaults {
   final String currencyType = 'LKR';
-  final bool enableCloudBackup = false;
+  final bool enableCloudBackup = true;
   final List<String> incomeSourceType = ['Salary', 'Invetment', 'Interest'];
   final List<String> expenseSourceType = [
     'Food & Groceries',

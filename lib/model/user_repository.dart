@@ -26,7 +26,7 @@ class UserRepository {
     String path = join(await getDatabasesPath(), 'transactions.db');
     return await openDatabase(
       path,
-      version: 5,
+      version: 6,
       onCreate: _onCreate,
     );
   }
@@ -73,8 +73,7 @@ class UserRepository {
   // Insert a new transaction
   Future<int> registerUser(UserDto userDto) async {
     Database db = await database;
-    return await db.insert('user', userDto.toJsonSQL(),
-        conflictAlgorithm: ConflictAlgorithm.replace);
+    return await db.insert('user', userDto.toJsonSQL(), conflictAlgorithm: ConflictAlgorithm.replace);
   }
 
   Future<UserDto> getUser(String userId) async {

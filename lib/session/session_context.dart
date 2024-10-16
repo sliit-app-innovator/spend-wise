@@ -101,6 +101,5 @@ class SessionContext {
 
   void reset() {
     userConfigs = [];
-    print("CCCCCCCCCCCCCCCCC0" + getIncomeTypes().toString());
   }
 }
