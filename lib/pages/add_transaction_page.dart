@@ -7,6 +7,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart';
 import 'package:spend_wise/model/transaction_repository_firebase.dart';
+import 'package:spend_wise/session/session_context.dart';
 import 'package:spend_wise/utils/colors.dart';
 
 class AddTransactionPage extends StatefulWidget {
@@ -24,36 +25,8 @@ class _AddExpensesPage extends State<AddTransactionPage> {
   String _selectedType = 'Select'; // Default type
   String _selectedSourceType = 'Select'; // Default type
   List<String> _selectedSourceTypes = [];
-  List<String> incomeSourceType = [
-    'Select',
-    'Salary',
-    'Invetment',
-    'Interest',
-    'Insurence Claim'
-  ];
-  List<String> expenseSourceType = [
-    'Select',
-    'Food & Groceries',
-    'Transportation',
-    'Rent/Mortgage',
-    'Utilities',
-    'Entertainment',
-    'Health & Fitness',
-    'Insurance',
-    'Shopping',
-    'Dining Out',
-    'Travel',
-    'Education',
-    'Savings',
-    'Investments',
-    'Debt Repayment',
-    'Subscriptions',
-    'Gifts & Donations',
-    'Personal Care',
-    'Pet Care',
-    'Miscellaneous',
-    'Emergency Fund'
-  ];
+  List<String> incomeSourceType = SessionContext().getIncomeTypes();
+  List<String> expenseSourceType = SessionContext().getExpendTypes();
   String _description = '';
   double _amount = 0.0;
   File? _imageFile;
@@ -67,11 +40,10 @@ class _AddExpensesPage extends State<AddTransactionPage> {
   void _addTransaction() async {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
-
-      String formattedDate =
-          DateFormat('yyyy-MM-dd hh:mm:ss.SSS').format(DateTime.now());
-      TransactionDto txn = new TransactionDto(
-          userId: 'damith',
+      SessionContext session = SessionContext();
+      String formattedDate = DateFormat('yyyy-MM-dd hh:mm:ss.SSS').format(DateTime.now());
+      TransactionDto txn = TransactionDto(
+          userId: session.userData.username,
           type: _selectedType,
           source: _selectedSourceType,
           description: _description,
@@ -95,8 +67,7 @@ class _AddExpensesPage extends State<AddTransactionPage> {
   Widget build(BuildContext context) {
     return GestureDetector(
         onTap: () {
-          FocusScope.of(context)
-              .unfocus(); // Dismiss the keyboard when tapping outside
+          FocusScope.of(context).unfocus(); // Dismiss the keyboard when tapping outside
         },
         child: Scaffold(
           appBar: AppBar(
@@ -112,6 +83,27 @@ class _AddExpensesPage extends State<AddTransactionPage> {
                   key: _formKey,
                   child: Column(
                     children: [
+                      Row(mainAxisAlignment: MainAxisAlignment.end, children: [
+                        // SizedBox(
+                        //   width: 180,
+                        //    height: 50, // Set the desired fixed width here
+                        ElevatedButton(
+                          onPressed: _addTransaction,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.brown,
+                            foregroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8.0), // Rounded corners
+                              side: const BorderSide(color: Colors.brown), // Border color
+                            ),
+                            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15), // Button padding
+                          ),
+                          child: const Text(
+                            'Add Transaction',
+                            style: TextStyle(color: Colors.white, fontSize: 16), // Customize the font size if needed
+                          ),
+                        ),
+                      ]),
                       // Dropdown for Income/Expense selection
                       DropdownButtonFormField<String>(
                         value: _selectedType,
@@ -127,19 +119,15 @@ class _AddExpensesPage extends State<AddTransactionPage> {
                             }
                           });
                         },
-                        items:
-                            ['Select', 'Income', 'Expense'].map((String type) {
+                        items: ['Select', 'Income', 'Expense'].map((String type) {
                           return DropdownMenuItem<String>(
                             value: type,
                             child: Text(type),
                           );
                         }).toList(),
-                        decoration: const InputDecoration(
-                            labelText: 'Transaction Type'),
+                        decoration: const InputDecoration(labelText: 'Transaction Type'),
                         validator: (value) {
-                          if (value == null ||
-                              value.isEmpty ||
-                              value == 'Select') {
+                          if (value == null || value.isEmpty || value == 'Select') {
                             return 'Please select  transaction source';
                           }
                           return null;
@@ -160,9 +148,7 @@ class _AddExpensesPage extends State<AddTransactionPage> {
                         }).toList(),
                         decoration: InputDecoration(labelText: 'Source Type'),
                         validator: (value) {
-                          if (value == null ||
-                              value.isEmpty ||
-                              value == 'Select') {
+                          if (value == null || value.isEmpty || value == 'Select') {
                             return 'Please select  transaction source';
                           }
                           return null;
@@ -170,8 +156,7 @@ class _AddExpensesPage extends State<AddTransactionPage> {
                       ),
                       TextFormField(
                         controller: _descriptionController,
-                        decoration:
-                            const InputDecoration(labelText: 'Description'),
+                        decoration: const InputDecoration(labelText: 'Description'),
                         onSaved: (value) {
                           _description = value!;
                         },
@@ -206,36 +191,11 @@ class _AddExpensesPage extends State<AddTransactionPage> {
                               ? SizedBox(
                                   width: 40,
                                   height: 40,
-                                  child: Image.file(_imageFile!,
-                                      fit: BoxFit.cover),
+                                  child: Image.file(_imageFile!, fit: BoxFit.cover),
                                 )
-                              : const Text('Add an attachment (optional)'),
+                              : const Text('Add an attachment'),
                         ],
                       ),
-                      Row(mainAxisAlignment: MainAxisAlignment.end, children: [
-                        ElevatedButton(
-                          onPressed: _addTransaction,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.brown,
-                            foregroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(
-                              borderRadius:
-                                  BorderRadius.circular(8.0), // Rounded corners
-                              side: const BorderSide(
-                                  color: Colors.brown), // Border color
-                            ),
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 20, vertical: 15), // Button padding
-                          ),
-                          child: const Text(
-                            'Add Transaction',
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontSize:
-                                    16), // Customize the font size if needed
-                          ),
-                        ),
-                      ]),
                     ],
                   ),
                 ),
@@ -246,8 +206,7 @@ class _AddExpensesPage extends State<AddTransactionPage> {
                       return ListTile(
                         title: Text(_transactions[index].source),
                         subtitle: Text(_transactions[index].type),
-                        trailing: Text(
-                            'LKR ${_transactions[index].amount.toStringAsFixed(2)}'),
+                        trailing: Text('LKR ${_transactions[index].amount.toStringAsFixed(2)}'),
                       );
                     },
                   ),

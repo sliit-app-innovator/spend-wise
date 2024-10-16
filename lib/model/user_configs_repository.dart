@@ -4,8 +4,7 @@ import 'package:spend_wise/dto/user.dart';
 import 'package:sqflite/sqflite.dart';
 
 class UserConfigsRepository {
-  static final UserConfigsRepository _instance =
-      UserConfigsRepository._internal();
+  static final UserConfigsRepository _instance = UserConfigsRepository._internal();
   static Database? _database;
 
   factory UserConfigsRepository() {
@@ -50,38 +49,25 @@ class UserConfigsRepository {
   // Insert a new transaction
   Future<int> insertConfigs(List<UserConfigs> configs) async {
     Database db = await database;
+    int i = await db.delete("user_configs", where: 'userId = ?', whereArgs: [configs[0].userId]);
+    print("Deleting........................." + i.toString());
     configs.forEach((item) {
-      db.insert('user_configs', item.toJsonSQL(),
-          conflictAlgorithm: ConflictAlgorithm.replace);
+      db.insert('user_configs', item.toJsonSQL(), conflictAlgorithm: ConflictAlgorithm.replace);
+      print("Inserting.........................");
     });
     return 1;
   }
 
-  Future<UserDto> getUserConfigs(String userId) async {
+  Future<List<UserConfigs>> getUserConfigs(String userId) async {
     Database db = await database;
-    List<Map<String, dynamic>> result = await db
-        .query('user_configs', where: 'username = ?', whereArgs: [userId]);
-
-    if (result.isNotEmpty) {
-      // Assuming you have a method to convert a Map<String, dynamic> to a UserDto
-      return UserDto.fromJson(result.first);
-    } else {
-      throw Exception('User not found');
-    }
+    List<Map<String, dynamic>> result = await db.query('user_configs', where: 'userId = ?', whereArgs: [userId]);
+    List<UserConfigs> userConfigs = result.isNotEmpty ? result.map((config) => UserConfigs.fromJson(config)).toList() : [];
+    return userConfigs;
   }
 
-  Future<UserDto> getUserByEmail(String email) async {
+  void deleteUserConfigs(String userId) async {
     Database db = await database;
-    List<Map<String, dynamic>> result = await db.query('user',
-        where: 'email = ?',
-        whereArgs: [email], // Correct whereArgs as a list
-        limit: 1);
-
-    if (result.isNotEmpty) {
-      // Assuming you have a method to convert a Map<String, dynamic> to a UserDto
-      return UserDto.fromJson(result.first);
-    } else {
-      throw Exception('Email not found');
-    }
+    int i = await db.delete("user_configs", where: 'userId = ?', whereArgs: [userId]);
+    print("DEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEL" + i.toString());
   }
 }

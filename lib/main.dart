@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:spend_wise/container_page.dart';
+import 'package:spend_wise/dto/user%20configs.dart';
 import 'package:spend_wise/dto/user.dart';
+import 'package:spend_wise/model/user_configs_repository.dart';
 import 'package:spend_wise/model/user_repository.dart';
 import 'package:spend_wise/pages/signup_page.dart';
+import 'package:spend_wise/session/session_context.dart';
 import 'package:workmanager/workmanager.dart';
 import 'package:spend_wise/background/flutter_sync.dart';
 import 'package:spend_wise/model/user_configs_repository_firebase.dart';
@@ -48,6 +51,7 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController _userIdController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final UserRepository _userRepository = UserRepository();
+  final UserConfigsRepository _userConfigsRepository = UserConfigsRepository();
   String userId = '';
   String password = '';
 
@@ -57,7 +61,11 @@ class _LoginPageState extends State<LoginPage> {
       password = _passwordController.text;
 
       try {
-        await _userRepository.login(userId, password);
+        UserDto user = await _userRepository.login(userId, password);
+        SessionContext session = SessionContext();
+        session.updateUserData(userData: user);
+        List<UserConfigs> userConfigs = await _userConfigsRepository.getUserConfigs(user.username);
+        session.setUserConfigs(userConfigs: userConfigs);
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => MyApp()),
@@ -68,6 +76,10 @@ class _LoginPageState extends State<LoginPage> {
           UserDto? existingUser = await userFirebaseRepo.existingUser(user);
           if (existingUser != null && existingUser.password == password) {
             _userRepository.registerUser(existingUser);
+            SessionContext session = SessionContext();
+            session.updateUserData(userData: existingUser);
+            List<UserConfigs> userConfigs = await _userConfigsRepository.getUserConfigs(existingUser.username);
+            session.setUserConfigs(userConfigs: userConfigs);
             restoreDataFromFirebase();
             Navigator.pushReplacement(
               context,

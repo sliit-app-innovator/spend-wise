@@ -58,39 +58,39 @@ class TransactionRepository {
   }
 
   // Retrieve all transactions
-  Future<List<TransactionDto>> getTransactions() async {
-    DateTime now = DateTime.now();
-    String startOfMonth = DateTime(now.year, now.month, 1).toString();
-    String endOfMonth = DateTime(now.year, now.month + 1, 0).toString();
-
+  Future<List<TransactionDto>> getTransactions(String from, String to, String user) async {
     Database db = await database;
     //db.delete('transactions');
     List<Map<String, dynamic>> result = await db.query('transactions',
-        // where: 'txnTime >= ? AND txnTime <= ?',
-        //  whereArgs: [startOfMonth, endOfMonth],
-        orderBy: 'txnTime DESC',
-        limit: 10);
+        where: 'isDeleted = ? AND userId = ? AND txnTime >= ? AND txnTime <= ?', whereArgs: [0, user, from, to], orderBy: 'txnTime DESC');
     return result.map((map) => TransactionDto.fromJson(map)).toList();
   }
 
   // Retrieve top transactions
-  Stream<List<TransactionDto>> getRecentTransactionsStreamSQL() {
+  Stream<List<TransactionDto>> getRecentTransactionsStreamSQL(String username) {
     return Stream.fromFuture(() async {
       Database db = await database;
-      List<Map<String, dynamic>> result = await db.query('transactions', where: 'isDeleted = ?', whereArgs: [0], limit: 10);
+      List<Map<String, dynamic>> result = await db.query('transactions',
+          where: 'isDeleted = ? AND userId = ? ', whereArgs: [0, username], orderBy: 'txnTime DESC', limit: 10);
       return result.map((map) => TransactionDto.fromJson(map)).toList();
     }());
   }
 
-  Stream<List<TransactionDto>> getAllTransactionsStreamSQLLimit() {
+  Stream<List<TransactionDto>> getAllTransactionsStreamSQLLimit(String user) {
+    // Get current date
     DateTime now = DateTime.now();
-    String startOfMonth = DateTime(now.year, now.month, 1).toString();
-    String endOfMonth = DateTime(now.year, now.month + 1, 0).toString();
+    // Get start date (first day of current month)
+    DateTime startDate = DateTime(now.year, now.month, 1);
+    // Get end date (last day of current month)
+    DateTime endDate = DateTime(now.year, now.month + 1, 1).subtract(Duration(days: 1));
 
     return Stream.fromFuture(() async {
       Database db = await database;
-      List<Map<String, dynamic>> result =
-          await db.query('transactions', where: 'isDeleted = ?', whereArgs: [0], orderBy: 'txnTime DESC', limit: 1000);
+      List<Map<String, dynamic>> result = await db.query('transactions',
+          where: 'isDeleted = ? AND userId = ? AND txnTime >= ? AND txnTime <= ? ',
+          whereArgs: [0, user, startDate.toIso8601String(), endDate.toIso8601String()],
+          orderBy: 'txnTime DESC',
+          limit: 1000);
       return result.map((map) => TransactionDto.fromJson(map)).toList();
     }());
   }
@@ -117,7 +117,7 @@ class TransactionRepository {
     );
   }
 
-  Future<MonthlyTransactionSummary> getMonthlyTransactionSummary() async {
+  Future<MonthlyTransactionSummary> getMonthlyTransactionSummary(String username) async {
     MonthlyTransactionSummary summary;
     // Initialize an empty list to hold transactions
     List<TransactionDto> transactions = [];
@@ -127,7 +127,7 @@ class TransactionRepository {
     Map<String, double> sampleMap = {};
 
     // Get the stream of transactions
-    Stream<List<TransactionDto>> transactionStream = getAllTransactionsStreamSQLLimit();
+    Stream<List<TransactionDto>> transactionStream = getAllTransactionsStreamSQLLimit(username);
 
     // Use await for to process the stream asynchronously
     await for (List<TransactionDto> transactionBatch in transactionStream) {
