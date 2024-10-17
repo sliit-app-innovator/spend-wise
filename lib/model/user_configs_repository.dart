@@ -1,5 +1,5 @@
 import 'package:path/path.dart';
-import 'package:spend_wise/dto/user%20configs.dart';
+import 'package:spend_wise/dto/user_configs.dart';
 import 'package:spend_wise/dto/user.dart';
 import 'package:sqflite/sqflite.dart';
 

@@ -3,7 +3,7 @@ import 'package:spend_wise/pages/add_transaction_page.dart';
 import 'package:spend_wise/model/transaction_repository.dart';
 import 'package:spend_wise/dto/mothly_transaction_summary_view.dart';
 import 'package:spend_wise/session/session_context.dart';
-import 'package:spend_wise/utils/charts/pie_chart.dart';
+import 'package:spend_wise/utils/Widgets/rows/summary_record.dart';
 import 'package:spend_wise/utils/colors.dart';
 
 class HomePage extends StatefulWidget {
@@ -58,7 +58,7 @@ class _HomePageState extends State<HomePage> {
 
             summary.expensesMap.forEach((key, value) {
               print('Category: $key, Amount: $value');
-              summaryViews.add(summaryItem(key, value));
+              summaryViews.add(SummaryRecord(source: key, amount: value));
             });
 
             totalExp = summary.totalExpense;
@@ -70,19 +70,6 @@ class _HomePageState extends State<HomePage> {
               balanceStyle = TextStyle(color: const Color.fromARGB(255, 255, 19, 2), fontSize: 32, fontWeight: FontWeight.bold);
             }
 
-            final Map<String, double> dataMap = {
-              "Red": 30,
-              "Blue": 40,
-              "Green": 20,
-              "Yellow": 10,
-            };
-
-            final List<Color> colors = [
-              Colors.red,
-              Colors.blue,
-              Colors.green,
-              Colors.yellow,
-            ];
             return Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
               child: Column(

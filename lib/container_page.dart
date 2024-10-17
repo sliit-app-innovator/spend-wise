@@ -13,13 +13,7 @@ import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:workmanager/workmanager.dart';
-import 'package:spend_wise/background/flutter_sync.dart';
-
-/*void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
-  runApp(MyApp());
-}*/
+import 'package:spend_wise/background/firebase_sync.dart';
 
 class MyApp extends StatefulWidget {
   const MyApp({super.key});

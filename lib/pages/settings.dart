@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:spend_wise/dto/user%20configs.dart';
+import 'package:spend_wise/dto/user_configs.dart';
 import 'package:spend_wise/model/user_configs_repository.dart';
 import 'package:spend_wise/session/session_context.dart';
-import 'package:spend_wise/utils/defults.dart';
+import 'package:spend_wise/utils/app_defaults.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});

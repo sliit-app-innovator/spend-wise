@@ -48,7 +48,6 @@ dev_dependencies:
   path_provider: ^2.0.11
   path: ^1.8.1
   shared_preferences: ^2.0.10
-  fl_chart: ^0.50.1
   workmanager: ^0.5.0  # Background job manager
   flutter_test:
     sdk: flutter

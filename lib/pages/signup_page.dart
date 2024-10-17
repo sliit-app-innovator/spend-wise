@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:spend_wise/background/flutter_sync.dart';
+import 'package:spend_wise/background/firebase_sync.dart';
 import 'package:spend_wise/dto/user.dart';
 import 'package:spend_wise/main.dart';
 import 'package:spend_wise/model/user_configs_repository_firebase.dart';

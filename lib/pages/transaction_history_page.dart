@@ -9,7 +9,7 @@ import 'package:spend_wise/pages/home_page.dart';
 import 'package:spend_wise/dto/user.dart';
 import 'package:spend_wise/model/transaction_repository.dart';
 import 'package:spend_wise/session/session_context.dart';
-import 'package:spend_wise/utils/charts/pie_chart.dart';
+import 'package:spend_wise/utils/Widgets/charts/pie_chart.dart';
 import 'package:spend_wise/utils/colors.dart';
 import 'dart:io';
 

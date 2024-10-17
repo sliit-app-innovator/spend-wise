@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:spend_wise/container_page.dart';
-import 'package:spend_wise/dto/user%20configs.dart';
+import 'package:spend_wise/dto/user_configs.dart';
 import 'package:spend_wise/dto/user.dart';
 import 'package:spend_wise/model/user_configs_repository.dart';
 import 'package:spend_wise/model/user_repository.dart';
 import 'package:spend_wise/pages/signup_page.dart';
 import 'package:spend_wise/session/session_context.dart';
-import 'package:spend_wise/background/flutter_sync.dart';
+import 'package:spend_wise/background/firebase_sync.dart';
 import 'package:spend_wise/model/user_configs_repository_firebase.dart';
 
 void main() async {
