@@ -27,7 +27,7 @@ class UserConfigsRepository {
     String path = join(await getDatabasesPath(), 'transactions.db');
     return await openDatabase(
       path,
-      version: 5,
+      version: 6,
       onCreate: _onCreate,
     );
   }
@@ -36,7 +36,7 @@ class UserConfigsRepository {
   Future _onCreate(Database db, int version) async {
     print("CREATING user_configs TABLE.......................!");
     await db.execute('''
-      CREATE TABLE user_configs (
+      CREATE TABLE user_configs1 (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         userId TEXT,
         name TEXT,

@@ -336,7 +336,7 @@ class _SignupPage extends State<SignupPage> {
           backgroundColor: Colors.amber,
           duration: Duration(seconds: 5)));
       await userRepository.registerUser(existingUser);
-      restoreDataFromFirebase();
+      restoreDataFromFirebase(existingUser.username);
       _firstNameController.text = "";
       _lastNameController.text = "";
       _userIdController.text = "";
