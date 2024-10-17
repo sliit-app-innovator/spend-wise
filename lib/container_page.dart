@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:spend_wise/dto/user.dart';
 import 'package:spend_wise/main.dart';
+import 'package:spend_wise/pages/profile.dart';
 import 'package:spend_wise/pages/settings.dart';
 import 'package:spend_wise/session/session_context.dart';
 import 'package:spend_wise/utils/colors.dart';
@@ -13,7 +14,7 @@ import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:workmanager/workmanager.dart';
-import 'package:spend_wise/background/firebase_sync.dart';
+import 'package:spend_wise/background/flutter_sync.dart';
 
 class MyApp extends StatefulWidget {
   const MyApp({super.key});
@@ -213,8 +214,11 @@ class _MyAppState extends State<MyApp> {
             leading: const Icon(Icons.person),
             title: const Text('Profile'),
             onTap: () {
-              // Handle profile navigation
-              //Navigator.pop(context);
+              Navigator.pop(context);
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => UserProfilePage()),
+              );
             },
           ),
           ListTile(

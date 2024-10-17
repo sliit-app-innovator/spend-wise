@@ -9,6 +9,27 @@ class FirebaseUserConfigsRepository {
     print("Storing User in cloude >>>>>>>>>>>>>>>>>>>>>>>");
   }
 
+  Future<void> updateUser(UserDto user) async {
+    CollectionReference userCollection = FirebaseFirestore.instance.collection('user');
+
+    try {
+      print('>>>>>>>>>>>>>>>  Deleting User ID.' + user.id.toString());
+      QuerySnapshot querySnapshot = await userCollection.where('id', isEqualTo: user.id).limit(1).get();
+
+      if (querySnapshot.docs.isNotEmpty) {
+        await userCollection.doc(querySnapshot.docs.first.id).delete();
+        print('>>>>>>>>>>>>>>>  User with ID user deleted successfully.' + user.toJson().toString());
+        userCollection.add(user.toJson());
+        print('>>>>>>>>>>>>>>>  User with ID user inserted successfully.' + user.toJson().toString());
+      } else {
+        print('User not found.');
+      }
+    } catch (e) {
+      print('Error deleting user: $e');
+      throw Exception('Failed to delete user');
+    }
+  }
+
   Future<void> saveTransactionsFb(TransactionDto txt) async {
     CollectionReference txtCollection = FirebaseFirestore.instance.collection('transactions');
     txtCollection.add(txt.toJson());
