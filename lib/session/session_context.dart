@@ -1,8 +1,6 @@
-import 'dart:ffi';
-
-import 'package:spend_wise/dto/user%20configs.dart';
+import 'package:spend_wise/dto/user_configs.dart';
 import 'package:spend_wise/dto/user.dart';
-import 'package:spend_wise/utils/defults.dart';
+import 'package:spend_wise/utils/app_defaults.dart';
 
 class SessionContext {
   UserDto userData = UserDto(

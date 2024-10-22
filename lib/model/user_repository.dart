@@ -91,6 +91,21 @@ class UserRepository {
     }
   }
 
+  Future<void> updateUser(UserDto user) async {
+    Database db = await database;
+
+    int count = await db.update(
+      'user',
+      user.toJson(), // Assuming UserDto has a toJson method to convert it to Map<String, dynamic>
+      where: 'id = ?',
+      whereArgs: [user.id], // Assuming username is used as the unique identifier
+    );
+    print("Update user >>>>>>>>>>>>>>>>>>>" + user.toJson().toString());
+    if (count == 0) {
+      throw Exception('User update failed, user not found');
+    }
+  }
+
   Future<UserDto> getUserByEmail(String email) async {
     Database db = await database;
     List<Map<String, dynamic>> result = await db.query('user',

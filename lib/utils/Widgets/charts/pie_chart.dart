@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:spend_wise/utils/charts/pie_chart_painter.dart';
+import 'package:spend_wise/utils/Widgets/charts/pie_chart_painter.dart';
 import 'dart:math';
 
 class PieChart extends StatelessWidget {
