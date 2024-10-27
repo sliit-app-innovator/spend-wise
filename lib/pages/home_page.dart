@@ -3,6 +3,7 @@ import 'package:spend_wise/pages/add_transaction_page.dart';
 import 'package:spend_wise/model/transaction_repository.dart';
 import 'package:spend_wise/dto/mothly_transaction_summary_view.dart';
 import 'package:spend_wise/session/session_context.dart';
+import 'package:spend_wise/utils/Widgets/rows/details_record.dart';
 import 'package:spend_wise/utils/Widgets/rows/summary_record.dart';
 import 'package:spend_wise/utils/colors.dart';
 
@@ -52,8 +53,21 @@ class _HomePageState extends State<HomePage> {
             String currency = SessionContext().getCurrency();
 
             for (int i = 0; i < summary.trasactions.length && i < 10; i++) {
-              recentTxns.add(transactionItem(summary.trasactions[i].source, summary.trasactions[i].txnTime, summary.trasactions[i].amount,
-                  currency, summary.trasactions[i].type == 'Income' ? 'assets/images/income.png' : 'assets/images/expense.png'));
+              recentTxns.add(
+                DetailedRecord(
+                    id: summary.trasactions[i].id.toString(),
+                    source: summary.trasactions[i].source,
+                    type: summary.trasactions[i].type,
+                    note: summary.trasactions[i].description,
+                    datetime: summary.trasactions[i].txnTime,
+                    amount: summary.trasactions[i].amount,
+                    currency: SessionContext().getCurrency(),
+                    attchementUrl: summary.trasactions[i].attachmentUrl,
+                    iconPath: (summary.trasactions[i].type == 'Income' ? 'assets/images/income.png' : 'assets/images/expense.png'),
+                    viewIcon: (summary.trasactions[i].type == 'Income'
+                        ? Icon(Icons.get_app_rounded, color: Colors.brown)
+                        : Icon(Icons.upload_outlined, color: Colors.brown))),
+              );
             }
 
             summary.expensesMap.forEach((key, value) {
@@ -188,151 +202,4 @@ class _HomePageState extends State<HomePage> {
       ), // Show the FAB only on the HomePage
     );
   }
-/*
-  List<BarChartGroupData> _generateBarGroups(Map<String, double> dataMap) {
-    return List.generate(dataMap.length, (index) {
-      final value = dataMap.values.elementAt(index);
-      return BarChartGroupData(
-        x: index,
-        barRods: [
-          BarChartRodData(
-            toY: value, // The height of the bar
-            color: Colors.blue,
-            width: 22,
-            borderRadius: BorderRadius.circular(4),
-          ),
-        ],
-      );
-    });
-  }*/
-
-  Color _getRandomColor(String key) {
-    return Colors.primaries[key.hashCode % Colors.primaries.length];
-  }
-
-  Widget transactionItem(String source, String datetime, double amount, String currency, iconPath) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 10.0),
-      child: Row(
-        children: [
-          CircleAvatar(
-              radius: 20,
-              child: Padding(
-                padding: EdgeInsets.all(10), // Add padding to reduce the image size
-                child: ClipOval(
-                  child: Image.asset(
-                    iconPath,
-                    fit: BoxFit.cover,
-                  ),
-                ),
-              )),
-          const SizedBox(width: 20),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                source,
-                style: const TextStyle(fontWeight: FontWeight.bold),
-              ),
-              Text(
-                datetime,
-                style: const TextStyle(color: Colors.grey),
-              ),
-            ],
-          ),
-          const Spacer(),
-          Text(
-            amount.toStringAsFixed(2),
-            style: const TextStyle(fontWeight: FontWeight.bold),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget summaryItem(String source, double amount) {
-    Icon bullet = Icon(Icons.arrow_downward_outlined, color: Colors.green);
-    if (SessionContext().expenseType(source)) {
-      bullet = Icon(Icons.arrow_upward_outlined, color: Colors.red);
-    }
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 10.0),
-      child: Row(
-        children: [
-          bullet,
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                source,
-                style: const TextStyle(fontWeight: FontWeight.bold),
-              ),
-            ],
-          ),
-          const Spacer(),
-          Text(
-            amount.toStringAsFixed(2),
-            style: const TextStyle(fontWeight: FontWeight.bold),
-          ),
-        ],
-      ),
-    );
-  }
 }
-
-/*
-
- BarChart(
-                    BarChartData(
-                      alignment: BarChartAlignment.spaceAround,
-                      barGroups: _generateBarGroups(
-                          dataMap), // Method to generate bar groups from Map
-                      borderData: FlBorderData(
-                        show: false, // Disable the border around the chart
-                      ),
-                      titlesData: FlTitlesData(
-                        bottomTitles: AxisTitles(
-                          sideTitles: SideTitles(
-                            showTitles: true,
-                            getTitlesWidget: (double value, TitleMeta meta) {
-                              // Convert index back to category name from the map
-                              return Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 8.0),
-                                child:
-                                    Text(dataMap.keys.elementAt(value.toInt())),
-                              );
-                            },
-                            reservedSize: 28,
-                          ),
-                        ),
-                        leftTitles: AxisTitles(
-                          sideTitles: SideTitles(
-                            showTitles: true,
-                            interval: 10, // Control the number intervals
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),*
-                  
-                  
-                   PieChart(
-                    PieChartData(
-                      sections: dataMap.entries
-                          .map(
-                            (entry) => PieChartSectionData(
-                              title: entry.key,
-                              value: entry.value,
-                              color: _getRandomColor(entry.key),
-                              titleStyle: TextStyle(
-                                  fontSize: 16, fontWeight: FontWeight.bold),
-                            ),
-                          )
-                          .toList(),
-                      centerSpaceRadius: 50,
-                      sectionsSpace: 2,
-                    ),
-                  )
-                  
-                  */
