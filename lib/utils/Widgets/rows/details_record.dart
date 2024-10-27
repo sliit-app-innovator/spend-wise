@@ -1,112 +1,36 @@
 import 'package:flutter/material.dart';
-import 'package:spend_wise/container_page.dart';
-import 'package:spend_wise/dto/transaction.dart';
-import 'package:spend_wise/dto/user.dart';
 import 'package:spend_wise/model/transaction_repository.dart';
 import 'package:spend_wise/session/session_context.dart';
-import 'package:spend_wise/utils/Widgets/rows/details_record.dart';
-import 'package:spend_wise/utils/colors.dart';
+import 'package:spend_wise/container_page.dart';
 import 'dart:io';
 
-class TransactionsPage extends StatefulWidget {
-  final UserDto userData;
-  const TransactionsPage({super.key, required this.userData});
+class DetailedRecord extends StatelessWidget {
+  final String id;
+  final String source;
+  final String type;
+  final String note;
+  final String datetime;
+  final double amount;
+  final String currency;
+  final String? attchementUrl;
+  final iconPath;
+  final Icon viewIcon;
 
-  @override
-  _PaymentsPageState createState() => _PaymentsPageState();
-}
-
-class _PaymentsPageState extends State<TransactionsPage> {
-  List<Widget> recentTxns = [];
-  File? _imageFile;
-  late UserDto userData;
-  @override
-  void initState() {
-    super.initState();
-    userData = widget.userData;
-  }
+  DetailedRecord({
+    required this.id,
+    required this.source,
+    required this.type,
+    required this.note,
+    required this.datetime,
+    required this.amount,
+    required this.currency,
+    required this.attchementUrl,
+    required this.iconPath,
+    required this.viewIcon,
+  });
 
   @override
   Widget build(BuildContext context) {
-    SessionContext context = SessionContext();
-    return Scaffold(
-      body: StreamBuilder<List<TransactionDto>>(
-        stream: TransactionRepository().getAllTransactionsStreamSQLLimit(context.userData.username), // Use the stream here
-        builder: (BuildContext context, AsyncSnapshot<List<TransactionDto>> snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator()); // Loading state
-          } else if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}')); // Error state
-          } else if (snapshot.hasData && snapshot.data!.isEmpty) {
-            return Center(child: Text('No transactions found.'));
-          } else if (snapshot.hasData) {
-            List<TransactionDto> transactions = snapshot.data!;
-            List<Map<String, dynamic>> recentTxns = [];
-
-            transactions.forEach((tx) {
-              recentTxns.add({
-                'id': tx.id.toString(),
-                'widget': DetailedRecord(
-                    id: tx.id.toString(),
-                    source: tx.source,
-                    type: tx.type,
-                    note: tx.description,
-                    datetime: tx.txnTime,
-                    amount: tx.amount,
-                    currency: SessionContext().getCurrency(),
-                    attchementUrl: tx.attachmentUrl,
-                    iconPath: (tx.type == 'Income' ? 'assets/images/income.png' : 'assets/images/expense.png'),
-                    viewIcon: (tx.type == 'Income'
-                        ? Icon(Icons.get_app_rounded, color: Colors.brown)
-                        : Icon(Icons.upload_outlined, color: Colors.brown))),
-              });
-            });
-
-            List<Widget> widgetList = recentTxns.map((txn) => txn['widget'] as Widget).toList();
-
-            return Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(height: 5),
-                  // Transactions
-                  Container(
-                    width: double.infinity,
-                    padding: EdgeInsets.all(16.0),
-                    decoration: BoxDecoration(
-                      color: const Color.fromARGB(255, 240, 215, 206),
-                      borderRadius: BorderRadius.circular(15),
-                    ),
-                    child: const Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'This Month Transactions',
-                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-                        ),
-                        Icon(Icons.list_alt_outlined, color: AppColors.TABLE_HEADER_COLOR),
-                      ],
-                    ),
-                  ),
-
-                  //const SizedBox(height: 10),
-                  Expanded(
-                    child: ListView(children: widgetList),
-                  ),
-                ],
-              ),
-            );
-          } else {
-            return Center(child: Text('No data available.'));
-          }
-        },
-      ),
-    );
-  }
-
-  Widget transactionItem(String id, String source, String type, String note, String datetime, double amount, String currency,
-      String? attchementUrl, iconPath, Icon viewIcon) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 0),
       child: Row(
@@ -142,7 +66,8 @@ class _PaymentsPageState extends State<TransactionsPage> {
           IconButton(
             icon: viewIcon,
             onPressed: () {
-              _loadSavedImage(attchementUrl);
+              String path = attchementUrl.toString();
+              File savedImage = File('$path');
               showDialog(
                 context: context,
                 builder: (BuildContext context) {
@@ -182,9 +107,9 @@ class _PaymentsPageState extends State<TransactionsPage> {
                           SizedBox(
                             width: 200,
                             height: 200,
-                            child: _imageFile != null
+                            child: savedImage != null
                                 ? Image.file(
-                                    _imageFile!,
+                                    savedImage!,
                                     fit: BoxFit.cover,
                                   )
                                 : const Center(child: Text('No image')),
@@ -279,15 +204,5 @@ class _PaymentsPageState extends State<TransactionsPage> {
         ],
       ),
     );
-  }
-
-  void _loadSavedImage(String? attachemtUrl) async {
-    final String path = attachemtUrl.toString();
-    final File savedImage = File('$path');
-    if (await savedImage.exists()) {
-      setState(() {
-        _imageFile = savedImage;
-      });
-    }
   }
 }
